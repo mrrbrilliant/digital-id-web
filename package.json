@@ -1,0 +1,36 @@
+{
+  "name": "digital-identity",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@selendra/eth-providers": "^1.2.5",
+    "axios": "^0.27.2",
+    "daisyui": "^2.24.0",
+    "dotenv": "^16.0.1",
+    "ethers": "^5.6.9",
+    "next": "12.2.5",
+    "next-themes": "^0.2.0",
+    "papaparse": "^5.3.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-icons": "^4.4.0",
+    "react-qr-reader": "^3.0.0-beta-1",
+    "react-qrcode-logo": "^2.8.0",
+    "react-toastify": "^9.0.8",
+    "uuid": "^8.3.2",
+    "z-schema": "^5.0.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.8",
+    "eslint": "8.22.0",
+    "eslint-config-next": "12.2.5",
+    "postcss": "^8.4.16",
+    "tailwindcss": "^3.1.8"
+  }
+}

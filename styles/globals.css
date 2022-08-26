@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  font-family: "Inter", sans-serif;
+  @apply h-max bg-base-300;
+}
+
+select {
+  /* for Firefox */
+  -moz-appearance: none !important;
+  /* for Chrome */
+  -webkit-appearance: none !important;
+}
+
+/* For IE10 */
+select::-ms-expand {
+  display: none !important;
+}
+
+input:-webkit-autofill {
+  -webkit-background-clip: text;
+}
+
+textarea:-webkit-autofill {
+  -webkit-background-clip: text;
+}
+
+.scanbox {
+  width: 350px;
+  height: 350px;
+  position: relative;
+}
+.scanbox::before {
+  height: 350px;
+  content: "";
+  position: absolute;
+  top: 0;
+  z-index: 50;
+  bottom: 0;
+  left: calc(50% - 175px);
+  width: 10px;
+  clip-path: inset(0);
+  animation: x 750ms ease-in-out infinite alternate, y 1500ms ease-in-out infinite, z 165ms ease-in-out infinite;
+  @apply bg-error shadow-error;
+}
+
+@keyframes x {
+  to {
+    transform: translateX(-185px);
+    left: calc(50% + 360px);
+  }
+}
+
+@keyframes y {
+  33% {
+    clip-path: inset(0 0 0 -10px);
+  }
+  50% {
+    clip-path: inset(0 0 0 0);
+  }
+  83% {
+    clip-path: inset(0 -10px 0 0);
+  }
+}
+
+@keyframes z {
+  to {
+    /* opacity: 25%; */
+    width: 1px;
+  }
+}
