@@ -4,6 +4,7 @@ import { NetworkContext } from "./network";
 import { WalletContext } from "./wallet";
 // import { NotificationContext } from "./notification";
 import { v4 as uid } from "uuid";
+import { toast } from "react-toastify";
 
 export const BalanceContext = createContext();
 
@@ -15,19 +16,11 @@ export default function BalanceProvider({ children }) {
   const [balance, setBalance] = useState("0");
 
   async function transfer({ to, amount }) {
-    const id_loading = uid();
-    const id_success = uid();
-    const id_error = uid();
-
-    // notify({ id: id_loading, status: "loading", name: "Transaction", message: `Transfering ${amount} SEL to ${to}` });
-
+    const toaster = toast.loading(`Transfering ${amount} to ${to}`);
     try {
       const network_gas = await network.getGasPrice();
       const gas_price = ethers.utils.hexlify(network_gas);
       const gas_limit = "0x100000";
-
-      const nonce = (await network.getTransactionCount(evmAddress, "latest")) + 1;
-      // const hexn = ethers.utils.hexValue(nonce);
 
       const transaction_config = {
         from: evmAddress,
@@ -39,35 +32,35 @@ export default function BalanceProvider({ children }) {
 
       evmWallet.sendTransaction(transaction_config).then(async (tx, error) => {
         if (error) {
-          // hide(id_loading);
-          // notify({
-          //   id: id_error,
-          //   status: "error",
-          //   name: "Transaction Failed",
-          //   message: `Transaction failed. ${error.toString()}`,
-          // });
+          toast.update(toaster, {
+            render: `Transaction failed. ${error.toString()}`,
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+          });
           return false;
         }
 
         await tx.wait();
-        // notify({
-        //   id: id_success,
-        //   status: "success",
-        //   name: "Transaction Succress",
-        //   message: `Transferred ${amount} SEL to ${to}`,
-        // });
-        // hide(id_loading);
+        toast.update(toaster, {
+          render: `Transferred ${amount} SEL to ${to}`,
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
       });
-
+      network.getBalance(evmAddress).then((balance) => {
+        const balanceInEth = ethers.utils.formatEther(balance);
+        setBalance(balanceInEth);
+      });
       return true;
     } catch (error) {
-      // hide(id_loading);
-      // notify({
-      //   id: id_error,
-      //   status: "error",
-      //   name: "Transaction Failed",
-      //   message: `Transaction failed. ${error.toString()}`,
-      // });
+      toast.update(toaster, {
+        render: `Transaction failed. ${error.toString()}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
       return false;
     }
   }
@@ -91,6 +84,7 @@ export default function BalanceProvider({ children }) {
   const value = {
     balance,
     transfer,
+    fetchBalance,
   };
   return <BalanceContext.Provider value={value}>{children}</BalanceContext.Provider>;
 }

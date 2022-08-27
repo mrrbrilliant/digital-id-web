@@ -11,12 +11,14 @@ import { BalanceContext } from "../contexts/balance";
 import { DataContext } from "../contexts/data";
 import { ContractContext } from "../contexts/contract";
 import { ethers } from "ethers";
+import { NetworkContext } from "../contexts/network";
 
 export default function Home() {
   // Contexts
   const { evmAddress, evmPrivateKey, evmWallet, substrateAddress, toggleAuthenticationRequest } =
     useContext(WalletContext);
-  const { balance, transfer } = useContext(BalanceContext);
+  const network = useContext(NetworkContext);
+  const { balance, transfer, fetchBalance } = useContext(BalanceContext);
   const { organizations, schemas, credentials, isDataReady, fetchData } = useContext(DataContext);
   // States
   const [showTransfer, setShowTransfer] = useState(false);
@@ -34,6 +36,7 @@ export default function Home() {
     amount: false,
   });
   const [myCredentials, setMyCredentials] = useState();
+  const [checkedBalance, setCheckedBalance] = useState(false);
 
   // Functions
   function toggleTransfer() {
@@ -76,6 +79,13 @@ export default function Home() {
       getMyCredentials();
     }
   }, [isDataReady, credentials, myCredentials, getMyCredentials]);
+
+  useEffect(() => {
+    if (network && evmAddress && !checkedBalance) {
+      fetchBalance();
+      setCheckedBalance(true);
+    }
+  }, [network, evmAddress, checkedBalance, setCheckedBalance, fetchBalance]);
 
   return (
     <div className="flex flex-col gap-6">

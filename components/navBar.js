@@ -7,6 +7,7 @@ import { MdOutlineLightMode, MdOutlineNightlight, MdOutlineQrCodeScanner } from 
 import { VscSignOut, VscSettingsGear, VscPerson, VscScreenFull } from "react-icons/vsc";
 
 import { ProfileContext } from "../contexts/profile";
+import { WalletContext } from "../contexts/wallet";
 
 const navigation = [
   { name: "Organization", href: "/organizations" },
@@ -16,6 +17,7 @@ const navigation = [
 const Navbar = ({ toggleQr }) => {
   const { theme, setTheme } = useTheme();
   const { profile } = useContext(ProfileContext);
+  const { forgetWallet, exportWallet } = useContext(WalletContext);
 
   function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
@@ -121,9 +123,14 @@ const Navbar = ({ toggleQr }) => {
               </a>
             </li>
             <li>
-              <a className="flex gap-4">
+              <button className="flex gap-4" onClick={exportWallet}>
+                <VscSignOut size={24} /> Export JSON Wallet
+              </button>
+            </li>
+            <li>
+              <button className="flex gap-4" onClick={forgetWallet}>
                 <VscSignOut size={24} /> Logout
-              </a>
+              </button>
             </li>
           </ul>
         </div>

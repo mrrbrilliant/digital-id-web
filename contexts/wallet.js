@@ -16,7 +16,7 @@ export default function WalletProvider({ children }) {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [encryptedWallet, setEncryptedWallet] = useState(null);
   const [evmAddress, setEvmAddress] = useState(null);
-  const [evmPrivateKey, setPrivateKey] = useState("");
+  const [evmPrivateKey, setEvmPrivateKey] = useState("");
   const [evmWallet, setEvmWallet] = useState(null);
   const [substrateAddress, setSubstrateAddress] = useState(null);
   const [substrateWallet, setSubstrateWallet] = useState(null);
@@ -33,10 +33,6 @@ export default function WalletProvider({ children }) {
       },
     });
     window.localStorage.setItem("encryptedWallet", encryptedWallet);
-    setEncryptedWallet(encryptedWallet);
-    setEvmWallet(_evmWallet);
-    setPrivateKey(_evmWallet.evmPrivateKey);
-    setEvmAddress(_evmWallet.address);
     window.localStorage.setItem("evmAddress", _evmWallet.address);
     return _evmWallet;
   }
@@ -49,8 +45,6 @@ export default function WalletProvider({ children }) {
 
     const _substrateWallet = keyring.addFromMnemonic(mnemonic);
     window.localStorage.setItem("substrateAddress", _substrateWallet.address);
-    setSubstrateAddress(_substrateWallet.address);
-    setSubstrateWallet(_substrateWallet);
     return _substrateWallet;
   }
 
@@ -114,9 +108,13 @@ export default function WalletProvider({ children }) {
               autoClose: 5000,
             });
           }
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+          const encryptedWallet = window.localStorage.getItem("encryptedWallet");
+          setEncryptedWallet(encryptedWallet);
+          setEvmWallet(_evmWallet);
+          setEvmPrivateKey(_evmWallet.evmPrivateKey);
+          setEvmAddress(_evmWallet.address);
+          setSubstrateAddress(_substrateWallet.address);
+          setSubstrateWallet(_substrateWallet);
         }, 10000);
       } else {
         toast.update(toaster, { render: "Failed to claim airdrop.", isLoading: false, autoClose: 5000 });
@@ -132,10 +130,10 @@ export default function WalletProvider({ children }) {
       try {
         const _evmWallet = ethers.Wallet.fromEncryptedJsonSync(encryptedWallet, password).connect(network);
         if (_evmWallet) {
-          setEvmAddress(_evmWallet.address);
-          setPrivateKey(_evmWallet.evmPrivateKey);
           window.localStorage.setItem("evmAddress", _evmWallet.address);
           window.sessionStorage.setItem("evmPrivateKey", _evmWallet.privateKey);
+          setEvmAddress(_evmWallet.address);
+          setEvmPrivateKey(_evmWallet.evmPrivateKey);
           setEvmWallet(_evmWallet);
           await createSubstrateWallet({ mnemonic: _evmWallet.mnemonic.phrase });
           return resolve(true);
@@ -147,7 +145,7 @@ export default function WalletProvider({ children }) {
   }
 
   function lockWallet() {
-    setPrivateKey(null);
+    setEvmPrivateKey(null);
     setEvmWallet(null);
     window.sessionStorage.removeItem("evmPrivateKey");
     router.push("/unlock");
@@ -159,6 +157,17 @@ export default function WalletProvider({ children }) {
     window.localStorage.removeItem("evmAddress");
     window.localStorage.removeItem("substrateAddress");
     window.location.replace("/createWallet");
+  }
+
+  function exportWallet() {
+    const blob = new Blob([encryptedWallet], { type: "application/json" });
+    const a = document.createElement("a");
+    a.download = `${evmAddress}.json`;
+    a.href = URL.createObjectURL(blob);
+    a.addEventListener("click", (e) => {
+      setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+    });
+    a.click();
   }
 
   function toggleAuthenticationRequest() {
@@ -207,6 +216,7 @@ export default function WalletProvider({ children }) {
     cb,
     setCb,
     toggleAuthenticationRequest,
+    exportWallet,
   };
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }

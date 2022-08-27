@@ -65,6 +65,7 @@ export default function MintCredential() {
       ignoreUnresolvableReferences: true,
       noEmptyStrings: true,
       noExtraKeywords: false,
+      noEmptyArrays: true,
     });
     const _schema = schema.details;
     const valid = validator.validate(formData, _schema);

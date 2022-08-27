@@ -3,6 +3,7 @@ import { WalletContext } from "../contexts/wallet";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import axios from "axios";
+import { BalanceContext } from "../contexts/balance";
 
 const initalState = {
   password: "",
@@ -13,8 +14,9 @@ const initalState = {
 
 export default function CreateWallet() {
   const { evmWallet, evmAddress, encryptedWallet, checkingAuth, createWallet } = useContext(WalletContext);
-  const router = useRouter();
+  const [isProcessing, setIsProcessing] = useState(false);
   const [form, setForm] = useState(initalState);
+  const router = useRouter();
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -28,6 +30,7 @@ export default function CreateWallet() {
   function handleSubmit(e) {
     e.preventDefault();
     if (form.password && form.mnemonic) {
+      setIsProcessing(true);
       createWallet({ password: form.password, mnemonic: form.mnemonic });
     }
   }
@@ -42,21 +45,21 @@ export default function CreateWallet() {
   useEffect(() => {
     if (!checkingAuth) {
       if (evmAddress && encryptedWallet) {
-        router.push("/");
+        window.location.replace("/");
         return;
       }
     }
   }, [checkingAuth, encryptedWallet, evmAddress, router]);
 
   return (
-    <div className="w-full min-h-screen flex place-items-center place-content-center">
+    <div className="w-full h-[80vh] flex place-items-center place-content-center">
       <div className="card w-96 shadow-xl p-6 bg-base-100">
         <div className="card-body p-0">
           <a className="label font-bold">CREATE WALLET</a>
           <form className="form-control w-full" onSubmit={handleSubmit}>
             {/* password */}
             <label className="label">
-              <span className="label-text">Password to secure your evmWallet</span>
+              <span className="label-text">Password to secure your wallet</span>
             </label>
             <input
               type="password"
@@ -95,9 +98,18 @@ export default function CreateWallet() {
               <input
                 type="submit"
                 value="CREATE"
-                className="w-full btn btn-primary text-primary-content"
+                className={
+                  isProcessing
+                    ? "w-full btn btn-primary text-primary-content loading"
+                    : "w-full btn btn-primary text-primary-content"
+                }
                 disabled={
-                  !form.saved || !form.mnemonic || !form.password || !form.confirm || form.password !== form.confirm
+                  !form.saved ||
+                  !form.mnemonic ||
+                  !form.password ||
+                  !form.confirm ||
+                  form.password !== form.confirm ||
+                  isProcessing
                 }
               />
             </label>
