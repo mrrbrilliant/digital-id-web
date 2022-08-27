@@ -5,18 +5,18 @@ import { WalletContext } from "./wallet";
 export const ProfileContext = createContext();
 
 export default function ProfileProvider({ children }) {
-  const { publicKey } = useContext(WalletContext);
+  const { evmAddress } = useContext(WalletContext);
   const [profile, setProfile] = useState({});
 
   useEffect(() => {
-    if (publicKey && !profile.avatar) {
+    if (evmAddress && !profile.avatar) {
       setProfile({
         ...profile,
         full_name: "Unknown",
-        avatar: `https://avatars.dicebear.com/api/micah/${publicKey}.svg`,
+        avatar: `https://avatars.dicebear.com/api/micah/${evmAddress}.svg`,
       });
     }
-  }, [publicKey, profile, setProfile]);
+  }, [evmAddress, profile, setProfile]);
 
   return <ProfileContext.Provider value={{ profile, setProfile }}>{children}</ProfileContext.Provider>;
 }

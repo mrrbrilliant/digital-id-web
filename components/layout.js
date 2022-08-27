@@ -8,7 +8,7 @@ import Scanner from "./scan";
 
 const Layout = ({ children }) => {
   const [openQr, setOpenQr] = useState(false);
-  const { encryptedWallet, checkingAuth, wallet, toggleAuthenticationRequest, show } = useContext(WalletContext);
+  const { encryptedWallet, checkingAuth, evmWallet, toggleAuthenticationRequest, show } = useContext(WalletContext);
   const router = useRouter();
   const path = router.pathname;
 
@@ -19,12 +19,12 @@ const Layout = ({ children }) => {
   const unlock = useCallback(() => {
     if (path !== "/profile") {
       if (encryptedWallet) {
-        if (!checkingAuth && !wallet && !show) {
+        if (!checkingAuth && !evmWallet && !show) {
           toggleAuthenticationRequest();
         }
       }
     }
-  }, [encryptedWallet, checkingAuth, wallet, toggleAuthenticationRequest, show, path]);
+  }, [encryptedWallet, checkingAuth, evmWallet, toggleAuthenticationRequest, show, path]);
 
   useEffect(() => {
     unlock();

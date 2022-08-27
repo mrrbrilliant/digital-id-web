@@ -13,25 +13,25 @@ const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDR || "";
 
 export default function ContractProvider({ children }) {
   const network = useContext(NetworkContext);
-  const { wallet, publicKey } = useContext(WalletContext);
+  const { evmWallet, evmAddress } = useContext(WalletContext);
   const [contract, setContract] = useState(null);
   // const [contractRO, setContractRO] = useState(null);
   // const [contractRW, setContractRW] = useState(null);
   // const [contractPub, setContractPub] = useState(null);
 
   // useEffect(() => {
-  //   if (wallet && !contractRW) {
-  //     const _contract_rw = new ethers.Contract(contractAddress, artificat.abi, wallet);
+  //   if (evmWallet && !contractRW) {
+  //     const _contract_rw = new ethers.Contract(contractAddress, artificat.abi, evmWallet);
   //     setContractRW(_contract_rw);
   //   }
-  // }, [wallet, setContractRW, contractRW]);
+  // }, [evmWallet, setContractRW, contractRW]);
 
   // useEffect(() => {
-  //   if (publicKey && network && !contractRO) {
+  //   if (evmAddress && network && !contractRO) {
   //     const _contract_ro = new ethers.Contract(contractAddress, artificat.abi, network);
   //     setContractRO(_contract_ro);
   //   }
-  // }, [publicKey, network, setContractRO, contractRO]);
+  // }, [evmAddress, network, setContractRO, contractRO]);
 
   // useEffect(() => {
   //   if (network && !contractPub) {
@@ -41,25 +41,25 @@ export default function ContractProvider({ children }) {
   // }, [network, contractPub, setContractPub]);
 
   useEffect(() => {
-    if (network && wallet && !contract) {
-      const _contract = new ethers.Contract(contractAddress, artificat.abi, wallet);
+    if (network && evmWallet && !contract) {
+      const _contract = new ethers.Contract(contractAddress, artificat.abi, evmWallet);
       setContract(_contract);
     }
-  }, [contract, wallet, network]);
+  }, [contract, evmWallet, network]);
 
   useEffect(() => {
-    if (network && wallet && contract && contract["provider"] === null) {
-      const _wallet = wallet.connect(network);
-      contract.connect(_wallet);
+    if (network && evmWallet && contract && contract["provider"] === null) {
+      const _evmWallet = evmWallet.connect(network);
+      contract.connect(_evmWallet);
       console.log("reconnect");
     }
   });
 
   useEffect(() => {
-    if (network && wallet && contract) {
+    if (network && evmWallet && contract) {
       console.log(contract);
     }
-  }, [contract, network, wallet]);
+  }, [contract, network, evmWallet]);
 
   const value = {
     contract,

@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { WalletContext } from "../contexts/wallet";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
+import axios from "axios";
 
 const initalState = {
   password: "",
@@ -11,7 +12,7 @@ const initalState = {
 };
 
 export default function CreateWallet() {
-  const { wallet, publicKey, encryptedWallet, checkingAuth, createWallet } = useContext(WalletContext);
+  const { evmWallet, evmAddress, encryptedWallet, checkingAuth, createWallet } = useContext(WalletContext);
   const router = useRouter();
   const [form, setForm] = useState(initalState);
 
@@ -40,12 +41,12 @@ export default function CreateWallet() {
 
   useEffect(() => {
     if (!checkingAuth) {
-      if (publicKey && encryptedWallet) {
+      if (evmAddress && encryptedWallet) {
         router.push("/");
         return;
       }
     }
-  }, [checkingAuth, encryptedWallet, publicKey, router]);
+  }, [checkingAuth, encryptedWallet, evmAddress, router]);
 
   return (
     <div className="w-full min-h-screen flex place-items-center place-content-center">
@@ -55,7 +56,7 @@ export default function CreateWallet() {
           <form className="form-control w-full" onSubmit={handleSubmit}>
             {/* password */}
             <label className="label">
-              <span className="label-text">Password to secure your wallet</span>
+              <span className="label-text">Password to secure your evmWallet</span>
             </label>
             <input
               type="password"

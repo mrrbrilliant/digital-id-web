@@ -9,7 +9,7 @@ export const BalanceContext = createContext();
 
 export default function BalanceProvider({ children }) {
   const network = useContext(NetworkContext);
-  const { publicKey, wallet } = useContext(WalletContext);
+  const { evmAddress, evmWallet } = useContext(WalletContext);
   // const { notify, hide } = useContext(NotificationContext);
 
   const [balance, setBalance] = useState("0");
@@ -26,18 +26,18 @@ export default function BalanceProvider({ children }) {
       const gas_price = ethers.utils.hexlify(network_gas);
       const gas_limit = "0x100000";
 
-      const nonce = (await network.getTransactionCount(publicKey, "latest")) + 1;
+      const nonce = (await network.getTransactionCount(evmAddress, "latest")) + 1;
       // const hexn = ethers.utils.hexValue(nonce);
 
       const transaction_config = {
-        from: publicKey,
+        from: evmAddress,
         to,
         value: ethers.utils.parseEther(amount),
         gasLimit: ethers.utils.hexlify(gas_limit),
         gasPrice: gas_price,
       };
 
-      wallet.sendTransaction(transaction_config).then(async (tx, error) => {
+      evmWallet.sendTransaction(transaction_config).then(async (tx, error) => {
         if (error) {
           // hide(id_loading);
           // notify({
@@ -73,20 +73,20 @@ export default function BalanceProvider({ children }) {
   }
 
   const fetchBalance = useCallback(() => {
-    network.getBalance(publicKey).then((balance) => {
+    network.getBalance(evmAddress).then((balance) => {
       const balanceInEth = ethers.utils.formatEther(balance);
       setBalance(balanceInEth);
     });
-  }, [network, setBalance, publicKey]);
+  }, [network, setBalance, evmAddress]);
 
   useEffect(() => {
-    if (network && publicKey) {
-      network.getBalance(publicKey).then((balance) => {
+    if (network && evmAddress) {
+      network.getBalance(evmAddress).then((balance) => {
         const balanceInEth = ethers.utils.formatEther(balance);
         setBalance(balanceInEth);
       });
     }
-  }, [network, publicKey]);
+  }, [network, evmAddress]);
 
   const value = {
     balance,

@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 
 export default function MintCredential() {
   const { organizations, schemas, isDataReady, fetchData } = useContext(DataContext);
-  const { wallet, publicKey, privateKey, toggleRequest, show } = useContext(WalletContext);
+  const { evmWallet, evmAddress, evmPrivateKey, toggleRequest, show } = useContext(WalletContext);
   const { contract } = useContext(ContractContext);
 
   const [isChecking, setIsChecking] = React.useState(true);
@@ -181,14 +181,14 @@ export default function MintCredential() {
   useEffect(() => {
     if (isDataReady && thisOrganization.length > 0 && thisSchema.length > 0) {
       if (
-        thisOrganization[0].owner === publicKey &&
-        thisSchema[0].owner === publicKey &&
+        thisOrganization[0].owner === evmAddress &&
+        thisSchema[0].owner === evmAddress &&
         typeof isOwner === "undefined"
       ) {
         setIsOwner(true);
       }
     }
-  }, [isDataReady, thisOrganization, thisSchema, publicKey, isOwner, setIsOwner]);
+  }, [isDataReady, thisOrganization, thisSchema, evmAddress, isOwner, setIsOwner]);
 
   useEffect(() => {
     if (isDataReady && thisOrganization.length !== 0 && !organization) {
@@ -270,7 +270,7 @@ export default function MintCredential() {
   // }
 
   // const submitDoc = async (doc) => {
-  //   const signer = new ethers.Wallet(wallet.privateKey);
+  //   const signer = new ethers.Wallet(evmWallet.evmPrivateKey);
   //   const signature = await signer.signMessage("decentralized_identity");
   //   console.log(signature);
 
@@ -451,10 +451,10 @@ export default function MintCredential() {
   // }, [orgOwner, setOrgOwner, orgId, ownerOfOrg, contractRO]);
 
   // useEffect(() => {
-  //   if (!isOwnOrg && publicKey && document.to === "") {
-  //     setDocument({ ...document, to: publicKey });
+  //   if (!isOwnOrg && evmAddress && document.to === "") {
+  //     setDocument({ ...document, to: evmAddress });
   //   }
-  // }, [isOwnOrg, document, setDocument, publicKey]);
+  // }, [isOwnOrg, document, setDocument, evmAddress]);
 
   // useEffect(() => {
   //   if (attachments) {
@@ -511,10 +511,10 @@ export default function MintCredential() {
   // }, [csvContent, schema]);
 
   // useEffect(() => {
-  //   if (!wallet && !show) {
+  //   if (!evmWallet && !show) {
   //     toggleRequest();
   //   }
-  // }, [wallet, toggleRequest, show]);
+  // }, [evmWallet, toggleRequest, show]);
 
   // useEffect(() => {
   //   let keys = [];

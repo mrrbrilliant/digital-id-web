@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import axios from "axios";
 import { VscLock } from "react-icons/vsc";
 import { QRCode } from "react-qrcode-logo";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import _ from "lodash";
 import Badge from "../components/badge";
 
@@ -15,7 +14,8 @@ import { ethers } from "ethers";
 
 export default function Home() {
   // Contexts
-  const { publicKey, privateKey, wallet, checkingAuth, toggleAuthenticationRequest } = useContext(WalletContext);
+  const { evmAddress, evmPrivateKey, evmWallet, substrateAddress, toggleAuthenticationRequest } =
+    useContext(WalletContext);
   const { balance, transfer } = useContext(BalanceContext);
   const { organizations, schemas, credentials, isDataReady, fetchData } = useContext(DataContext);
   // States
@@ -68,9 +68,9 @@ export default function Home() {
   }
 
   const getMyCredentials = useCallback(() => {
-    const mine = credentials.filter((c) => c.owner === publicKey);
+    const mine = credentials.filter((c) => c.owner === evmAddress);
     setMyCredentials(mine);
-  }, [credentials, setMyCredentials, publicKey]);
+  }, [credentials, setMyCredentials, evmAddress]);
   useEffect(() => {
     if (isDataReady && credentials.length > 0 && typeof myCredentials === "undefined") {
       getMyCredentials();
@@ -83,22 +83,30 @@ export default function Home() {
         <div className="stat">
           <div className="stat-title">Current balance</div>
           <div className="stat-value">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "SEL",
-              maximumFractionDigits: 5,
-            }).format(balance)}
-            {!privateKey && (
-              <span>
-                <VscLock fontSize={32} onClick={toggleAuthenticationRequest} />
-              </span>
-            )}
-
-            {publicKey && <p className="text-xs font-normal font-mono">{publicKey}</p>}
-            {privateKey && <p className="text-xs font-normal font-mono">{privateKey}</p>}
+            <div className="flex mb-4">
+              {new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "SEL",
+                maximumFractionDigits: 6,
+              }).format(balance)}
+              {!evmPrivateKey && (
+                <span>
+                  <VscLock fontSize={32} onClick={toggleAuthenticationRequest} />
+                </span>
+              )}
+            </div>
+            {evmAddress && <p className="text-xs font-normal font-mono">EVM: {evmAddress}</p>}
+            {substrateAddress && <p className="text-xs font-normal font-mono">SEL: {substrateAddress}</p>}
           </div>
           <div className="stat-actions flex gap-6">
-            <button className="btn btn-sm btn-success flex-grow">Deposit</button>
+            <a
+              className="btn btn-sm btn-success flex-grow"
+              href="https://faucet.selendra.org/testnet"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Deposit
+            </a>
             <button className="btn btn-sm btn-primary flex-grow" onClick={toggleTransfer}>
               Transfer
             </button>
@@ -163,7 +171,7 @@ export default function Home() {
 
       {showReceive && (
         <div className="bg-base-100 rounded-xl p-6 flex flex-col gap-6 place-content-center place-items-center">
-          <QRCode value={publicKey} eyeRadius={5} size={250} />
+          <QRCode value={evmAddress} eyeRadius={5} size={250} />
         </div>
       )}
 
@@ -181,18 +189,6 @@ export default function Home() {
                 );
               })}
           </div>
-          {/* {unVerifiedDocs.length > 0 && (
-            <>
-              <h1>Unverified</h1>
-              <div className="grid grid-cols-4 mt-6 gap-6 ">
-                {unVerifiedDocs &&
-                  unVerifiedDocs.length > 0 &&
-                  unVerifiedDocs.map((credential, index) => {
-                    return <DocumentCard key={index} credential={credential} />;
-                  })}
-              </div>
-            </>
-          )} */}
         </div>
       </div>
     </div>
@@ -208,14 +204,6 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
 
   const thisSchema = schemas.filter((s) => s.did === credential.parent)[0];
   const thisOrganization = organizations.filter((o) => o.did === thisSchema.parent)[0];
-
-  // const { organizations, isOrgLoading, credentialTypes, transferDocument } = useContext(DataContext);
-
-  // const [typeDetail, setTypeDetail] = useState();
-  // const [orgDetail, setOrgDetail] = useState();
-  // const [docDetail, setDocDetail] = useState();
-  // const [cType, setCType] = useState();
-
   const [transferTo, setTransferTo] = useState("");
   const [openTransfer, setOpenTransfer] = useState(false);
   const [checkedImage, setCheckedImage] = useState(false);
@@ -360,19 +348,8 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
               )}
 
               {credential && credential.state == 4 && (
-                // <BtnWithAuth
-                //   className="p-2 btn btn-primary flex-grow text-white w-32 leading-none rounded-xl font-bold mt-2 bg-primarypink hover:bg-opacity-75 text-xs uppercase"
-                //   callback={() => {
-                //     setOpenTransfer(true);
-                //   }}
-                // >
-                //   Transfer
-                // </BtnWithAuth>
                 <button
                   className="p-2 btn btn-primary flex-grow text-white w-32 leading-none rounded-xl font-bold mt-2 bg-primarypink hover:bg-opacity-75 text-xs uppercase"
-                  // callback={() => {
-                  //   setOpenTransfer(true);
-                  // }}
                   onClick={() => setOpenTransfer(true)}
                 >
                   Transfer

@@ -9,7 +9,7 @@ DataContext.displayName = "DataContext";
 
 export default function DataProvider({ children }) {
   // Contexts
-  const { publicKey } = useContext(WalletContext);
+  const { evmAddress } = useContext(WalletContext);
   // States
   const [isDataReady, setIsDataReady] = useState(false);
   const [data, setData] = useState();

@@ -1,7 +1,12 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
+import { options } from "@selendra/api";
+import { ApiPromise, WsProvider, Keyring } from "@polkadot/api";
+import { createClaimSignature } from "@selendra/eth-transactions";
 import { NetworkContext } from "./network";
+import axios from "axios";
+import { toast } from "react-toastify";
 // @ts-ignore
 export const WalletContext = createContext();
 WalletContext.displayName = "WalletContext";
@@ -10,48 +15,129 @@ export default function WalletProvider({ children }) {
   const network = useContext(NetworkContext);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [encryptedWallet, setEncryptedWallet] = useState(null);
-  const [publicKey, setPublicKey] = useState(null);
-  const [privateKey, setPrivateKey] = useState("");
-  const [wallet, setWallet] = useState(null);
+  const [evmAddress, setEvmAddress] = useState(null);
+  const [evmPrivateKey, setPrivateKey] = useState("");
+  const [evmWallet, setEvmWallet] = useState(null);
+  const [substrateAddress, setSubstrateAddress] = useState(null);
+  const [substrateWallet, setSubstrateWallet] = useState(null);
   const [show, setShow] = useState(false);
   const [cb, setCb] = useState();
   const router = useRouter();
   const path = router.pathname;
 
-  function createWallet({ password, mnemonic }) {
-    const _wallet = ethers.Wallet.fromMnemonic(mnemonic).connect(network);
-    // @ts-ignore
+  async function createEvmWallet({ password, mnemonic }) {
+    const _evmWallet = ethers.Wallet.fromMnemonic(mnemonic).connect(network);
+    const encryptedWallet = await _evmWallet.encrypt(password, {
+      scrypt: {
+        N: 4096,
+      },
+    });
+    window.localStorage.setItem("encryptedWallet", encryptedWallet);
+    setEncryptedWallet(encryptedWallet);
+    setEvmWallet(_evmWallet);
+    setPrivateKey(_evmWallet.evmPrivateKey);
+    setEvmAddress(_evmWallet.address);
+    window.localStorage.setItem("evmAddress", _evmWallet.address);
+    return _evmWallet;
+  }
 
-    _wallet
-      .encrypt(password, {
-        scrypt: {
-          N: 4096,
-        },
+  async function createSubstrateWallet({ mnemonic }) {
+    const keyring = new Keyring({
+      type: "sr25519",
+      ss58Format: 204,
+    });
+
+    const _substrateWallet = keyring.addFromMnemonic(mnemonic);
+    window.localStorage.setItem("substrateAddress", _substrateWallet.address);
+    setSubstrateAddress(_substrateWallet.address);
+    setSubstrateWallet(_substrateWallet);
+    return _substrateWallet;
+  }
+
+  async function requestInitialAirdrop(substrateAddress) {
+    const req = await axios
+      .post("https://api-faucet.selendra.org/api/claim/testnet", {
+        address: substrateAddress,
       })
-      .then((encryptedWallet) => {
-        window.localStorage.setItem("encryptedWallet", encryptedWallet);
-        setEncryptedWallet(encryptedWallet);
+      .then((res) => res.data);
+    return req.success;
+  }
 
-        setWallet(_wallet);
-        setPrivateKey(_wallet.privateKey);
-        setPublicKey(_wallet.address);
-        window.localStorage.setItem("publicKey", _wallet.address);
+  async function bindAccount({ evmProvider, evmWallet, substrateWallet }) {
+    try {
+      const substrateProvider = process.env.NEXT_PUBLIC_WSS_ADDRESS || "";
+      const provider = new WsProvider(substrateProvider);
+      const api = new ApiPromise(options({ provider }));
+      await api.isReadyOrError;
+      const chainId = parseInt(api.consts.evmAccounts.chainId.toString());
+      const genesisHash = api.genesisHash.toString();
+      const balance = await evmProvider.getBalance(evmWallet.address);
 
-        router.push("/");
+      if (parseFloat(balance) > 0) {
+        throw new Error("Account already exit, please use new evm account");
+      }
+      const signature = createClaimSignature(evmWallet.privateKey, {
+        salt: genesisHash,
+        chainId: chainId,
+        substrateAddress: substrateWallet.address,
       });
+      const hash = await api.tx.evmAccounts.claimAccount(evmWallet.address, signature).signAndSend(substrateWallet);
+
+      return hash;
+    } catch (error) {
+      toast.error(`Error! ${error.toString()}`);
+      throw error;
+    }
+  }
+
+  async function createWallet({ password, mnemonic }) {
+    const toaster = toast.loading("Creating EVM Wallet");
+    try {
+      const _evmWallet = await createEvmWallet({ password, mnemonic });
+      toast.update(toaster, { render: "Creating Substrate Wallet", isLoading: true });
+      const _substrateWallet = await createSubstrateWallet({ mnemonic });
+      toast.update(toaster, { render: "Claiming initial airdrop!", isLoading: true });
+      const claimed = await requestInitialAirdrop(_substrateWallet.address);
+      if (claimed) {
+        toast.update(toaster, { render: "Binding EVM and Substrate address.", isLoading: true });
+        setTimeout(async () => {
+          const hash = await bindAccount({
+            evmProvider: network,
+            evmWallet: _evmWallet,
+            substrateWallet: _substrateWallet,
+          });
+          if (hash) {
+            toast.update(toaster, {
+              render: "Successfully bond accounts.",
+              isLoading: false,
+              type: "success",
+              autoClose: 5000,
+            });
+          }
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }, 10000);
+      } else {
+        toast.update(toaster, { render: "Failed to claim airdrop.", isLoading: false, autoClose: 5000 });
+      }
+    } catch (error) {
+      toast.update(toaster, { render: `Error! ${error.toString()}`, isLoading: false, type: "error", autoClose: 5000 });
+      console.log(error);
+    }
   }
 
   async function unlockWallet({ password }) {
-    return new Promise((resolve, reject) => {
+    return await new Promise(async (resolve, reject) => {
       try {
-        const _wallet = ethers.Wallet.fromEncryptedJsonSync(encryptedWallet, password).connect(network);
-        if (_wallet) {
-          setPublicKey(_wallet.address);
-          setPrivateKey(_wallet.privateKey);
-          window.localStorage.setItem("publicKey", _wallet.address);
-          window.sessionStorage.setItem("privateKey", _wallet.privateKey);
-          // @ts-ignore
-          setWallet(_wallet);
+        const _evmWallet = ethers.Wallet.fromEncryptedJsonSync(encryptedWallet, password).connect(network);
+        if (_evmWallet) {
+          setEvmAddress(_evmWallet.address);
+          setPrivateKey(_evmWallet.evmPrivateKey);
+          window.localStorage.setItem("evmAddress", _evmWallet.address);
+          window.sessionStorage.setItem("evmPrivateKey", _evmWallet.privateKey);
+          setEvmWallet(_evmWallet);
+          await createSubstrateWallet({ mnemonic: _evmWallet.mnemonic.phrase });
           return resolve(true);
         }
       } catch (error) {
@@ -62,14 +148,17 @@ export default function WalletProvider({ children }) {
 
   function lockWallet() {
     setPrivateKey(null);
-    setWallet(null);
-    window.sessionStorage.removeItem("privateKey");
+    setEvmWallet(null);
+    window.sessionStorage.removeItem("evmPrivateKey");
     router.push("/unlock");
   }
 
   function forgetWallet() {
     window.localStorage.removeItem("encryptedWallet");
-    router.replace("/createWallet");
+    window.sessionStorage.removeItem("evmPrivateKey");
+    window.localStorage.removeItem("evmAddress");
+    window.localStorage.removeItem("substrateAddress");
+    window.location.replace("/createWallet");
   }
 
   function toggleAuthenticationRequest() {
@@ -78,20 +167,21 @@ export default function WalletProvider({ children }) {
 
   useEffect(() => {
     if (checkingAuth) {
-      // setEncryptedWallet(initalEncryptedWallet);
       const initialEncryptedWallet = window.localStorage.getItem("encryptedWallet") || null;
-      const initialPublicKey = window.localStorage.getItem("publicKey") || null;
+      const initialEvmAddress = window.localStorage.getItem("evmAddress") || null;
+      const initialSubstrateAddress = window.localStorage.getItem("substrateAddress") || null;
 
       setEncryptedWallet(initialEncryptedWallet);
-      setPublicKey(initialPublicKey);
+      setEvmAddress(initialEvmAddress);
+      setSubstrateAddress(initialSubstrateAddress);
       setCheckingAuth(false);
     }
-  }, [checkingAuth, setEncryptedWallet, setPublicKey, setCheckingAuth]);
+  }, [checkingAuth, setEncryptedWallet, setEvmAddress, setSubstrateAddress, setCheckingAuth]);
 
   useEffect(() => {
     if (path !== "/profile") {
       if (!checkingAuth) {
-        if (!publicKey && !encryptedWallet) {
+        if (!evmAddress && !substrateAddress && !encryptedWallet) {
           if (router.pathname !== "/createWallet") {
             router.replace("/createWallet");
           }
@@ -99,18 +189,20 @@ export default function WalletProvider({ children }) {
         }
       }
     }
-  }, [checkingAuth, publicKey, encryptedWallet, router, path]);
+  }, [checkingAuth, evmAddress, substrateAddress, encryptedWallet, router, path]);
 
   const value = {
-    wallet,
+    evmWallet,
     encryptedWallet,
     checkingAuth,
     createWallet,
     unlockWallet,
     lockWallet,
     forgetWallet,
-    publicKey,
-    privateKey,
+    evmAddress,
+    evmPrivateKey,
+    substrateAddress,
+    substrateWallet,
     show,
     cb,
     setCb,

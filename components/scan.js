@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { WalletContext } from "../contexts/wallet";
 
 export default function Scanner({ toggleQr }) {
-  const { wallet, show, toggleAuthenticationRequest, publicKey } = useContext(WalletContext);
+  const { evmWallet, show, toggleAuthenticationRequest, evmAddress } = useContext(WalletContext);
   const [data, setData] = useState({
     id: "",
     link: "",
@@ -14,14 +14,14 @@ export default function Scanner({ toggleQr }) {
   const router = useRouter();
 
   const submit = useCallback(
-    ({ id, signature, publicKey }) => {
+    ({ id, signature, evmAddress }) => {
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
 
       const raw = JSON.stringify({
         id,
         signature: `Web3 ${signature}`,
-        publicKey,
+        evmAddress,
       });
 
       const requestOptions = {
@@ -45,9 +45,9 @@ export default function Scanner({ toggleQr }) {
 
   const signMessage = useCallback(
     (msg) => {
-      return wallet.signMessage(msg).then((msg) => msg);
+      return evmWallet.signMessage(msg).then((msg) => msg);
     },
-    [wallet]
+    [evmWallet]
   );
 
   function handleJson(result) {
@@ -65,17 +65,17 @@ export default function Scanner({ toggleQr }) {
       if (data.id && !emitLock) {
         setEmitLock(true);
         signMessage(data.id).then((msg) => {
-          submit({ id: data.id, signature: msg, publicKey });
+          submit({ id: data.id, signature: msg, evmAddress });
         });
       }
     }
-  }, [data, emitLock, setEmitLock, signMessage, submit, publicKey]);
+  }, [data, emitLock, setEmitLock, signMessage, submit, evmAddress]);
 
   useEffect(() => {
-    if (!wallet && !show) {
+    if (!evmWallet && !show) {
       toggleAuthenticationRequest();
     }
-  }, [wallet, toggleAuthenticationRequest, show]);
+  }, [evmWallet, toggleAuthenticationRequest, show]);
 
   return (
     <div

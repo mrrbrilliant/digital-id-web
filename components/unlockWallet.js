@@ -3,7 +3,7 @@ import { ContractContext } from "../contexts/contract";
 import { WalletContext } from "../contexts/wallet";
 
 export default function UnlockWallet() {
-  const { wallet, unlockWallet, toggleAuthenticationRequest, show, cb } = useContext(WalletContext);
+  const { evmWallet, unlockWallet, toggleAuthenticationRequest, show, cb } = useContext(WalletContext);
   const { contractRW } = useContext(ContractContext);
   const [password, setPassword] = useState("");
   const [unlocked, setUnlocked] = useState(false);
@@ -59,7 +59,7 @@ export default function UnlockWallet() {
         cb();
       }
     }
-  }, [unlocked, wallet, contractRW, cb, returnsPromise]);
+  }, [unlocked, evmWallet, contractRW, cb, returnsPromise]);
 
   if (show) {
     return (
@@ -70,7 +70,7 @@ export default function UnlockWallet() {
             <form className="form-control w-full" onSubmit={handleSubmit}>
               <div>
                 <label className="label">
-                  <span className="label-text">Password to unlock your wallet</span>
+                  <span className="label-text">Password to unlock your evmWallet</span>
                 </label>
                 <input
                   type="password"

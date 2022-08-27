@@ -19,7 +19,7 @@ const initialToBurnSchema = { title: "", did: null };
 
 export default function Org() {
   const { organizations, schemas: allSchemas, isDataReady } = useContext(DataContext);
-  const { publicKey } = useContext(WalletContext);
+  const { evmAddress } = useContext(WalletContext);
   const { contract } = useContext(ContractContext);
 
   const [showBurnOrganization, setShowBurnOrganization] = useState(false);
@@ -91,9 +91,9 @@ export default function Org() {
   }, [allSchemas, o_did, setShemas]);
 
   const checkOwership = useCallback(() => {
-    const ownership = publicKey === organization.owner;
+    const ownership = evmAddress === organization.owner;
     setIsOwner(ownership);
-  }, [publicKey, organization]);
+  }, [evmAddress, organization]);
 
   useEffect(() => {
     if (isDataReady && organizations.length > 0 && typeof organization === "undefined") initOrgData();
@@ -276,7 +276,7 @@ const TypeCard = ({ type, isOwner, orgId, setToBurnSchema, toggleBurnSchemaModal
 
 const DocumentCard = ({ res, setIsCheckUnverifiedDocs }) => {
   const { organizations, isOrgLoading, credentialTypes, createDocument } = React.useContext(DataContext);
-  const { wallet } = useContext(WalletContext);
+  const { evmWallet } = useContext(WalletContext);
 
   const [typeDetail, setTypeDetail] = useState();
   const [orgDetail, setOrgDetail] = useState();
@@ -321,7 +321,7 @@ const DocumentCard = ({ res, setIsCheckUnverifiedDocs }) => {
   };
 
   const deletePendingRequest = async (id) => {
-    const signer = new ethers.Wallet(wallet.privateKey);
+    const signer = new ethers.Wallet(evmWallet.evmPrivateKey);
     const signature = await signer.signMessage("decentralized_identity");
 
     var myHeaders = new Headers();

@@ -40,7 +40,7 @@ const MintSchema = () => {
   // Contexts
   const { contract } = useContext(ContractContext);
   const { organizations, isDataReady } = useContext(DataContext);
-  const { wallet, publicKey, toggleAuthenticationRequest, show } = useContext(WalletContext);
+  const { evmWallet, evmAddress, toggleAuthenticationRequest, show } = useContext(WalletContext);
   // States
   const [currentOrganization, setCurrentOrganization] = useState();
   const [schema, setSchema] = useState(initialScheme);
@@ -232,8 +232,8 @@ const MintSchema = () => {
   }, [schema, propsArray, setValid]);
 
   const setOwnerAddress = useCallback(() => {
-    setSchema({ ...schema, ownerId: publicKey });
-  }, [setSchema, schema, publicKey]);
+    setSchema({ ...schema, ownerId: evmAddress });
+  }, [setSchema, schema, evmAddress]);
 
   const setCurrentOrgInfo = useCallback(() => {
     const _org = organizations.filter((o) => o.did == parent);
@@ -256,12 +256,12 @@ const MintSchema = () => {
   }, [isDataReady, organizations, currentOrganization, setCurrentOrgInfo]);
 
   useEffect(() => {
-    if (publicKey && schema.ownerId === "") setOwnerAddress();
-  }, [publicKey, schema, setOwnerAddress]);
+    if (evmAddress && schema.ownerId === "") setOwnerAddress();
+  }, [evmAddress, schema, setOwnerAddress]);
 
   useEffect(() => {
-    if (!wallet && !show) toggleAuthenticationRequest();
-  }, [wallet, toggleAuthenticationRequest, show]);
+    if (!evmWallet && !show) toggleAuthenticationRequest();
+  }, [evmWallet, toggleAuthenticationRequest, show]);
 
   return (
     <div className="">

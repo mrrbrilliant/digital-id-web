@@ -9,14 +9,14 @@ const ipfs = process.env.NEXT_PUBLIC_IPFS_ADDRESS || "";
 const ipfs_address = (cid) => `${ipfs}/files/${cid}`;
 
 /**
- * @param {string} privateKey - EVM privateKey
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
  * @param {string} ipfsHash - hash of json document after uploaded to ipfs
  */
-async function mintOrganization(privateKey, ipfsHash) {
+async function mintOrganization(evmPrivateKey, ipfsHash) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const tx = await contract.mintOrganization(ipfsHash);
     await tx.wait();
@@ -27,16 +27,21 @@ async function mintOrganization(privateKey, ipfsHash) {
 }
 
 /**
- * @param {string} privateKey - EVM privateKey
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
  * @param {string} ipfsHash - hash of json document after uploaded to ipfs
  * @param {number} schemaState - all credential based on this schema will use this state
+ * 0 - permanent
+ * 1 - revokable
+ * 2 - expirable
+ * 3 - revokableAndExpirable
+ * 4 - transferable
  * @param {number} orgDid - organization id (did)
  */
-async function mintSchema(privateKey, ipfsHash, schemaState, orgDid) {
+async function mintSchema(evmPrivateKey, ipfsHash, schemaState, orgDid) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const tx = await contract.mintSchema(ipfsHash, schemaState, orgDid);
     await tx.wait();
@@ -47,15 +52,15 @@ async function mintSchema(privateKey, ipfsHash, schemaState, orgDid) {
 }
 
 /**
- * @param {string} privateKey - EVM privateKey
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
  * @param {string} ipfsHash - hash of json document after uploaded to ipfs
  * @param {number} schemaDid - schema id that credential based on
  */
-async function mintCredential(privateKey, ipfsHash, schemaDid) {
+async function mintCredential(evmPrivateKey, ipfsHash, schemaDid) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const tx = await contract.mintDocument(ipfsHash, schemaDid);
     await tx.wait();
@@ -66,15 +71,15 @@ async function mintCredential(privateKey, ipfsHash, schemaDid) {
 }
 
 /**
- * @param {string} privateKey - EVM privateKey
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
  * @param {number} credentialDid - id of credential to transfer
  * @param {string} receiverAddress - EVM Address of reciever
  */
-async function transferCredential(privateKey, credentialDid, receiverAddress) {
+async function transferCredential(evmPrivateKey, credentialDid, receiverAddress) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const tx = await contract.transferCredential(credentialDid, receiverAddress);
     await tx.wait();
@@ -85,15 +90,15 @@ async function transferCredential(privateKey, credentialDid, receiverAddress) {
 }
 
 /**
- * @param {string} privateKey - EVM privateKey
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
  * @param {number} orgDid - organization id to be transfer
  * @param {string} receiverAddress - EVM Address of reciever
  */
-async function transferOrganzation(privateKey, orgDid, receiverAddress) {
+async function transferOrganzation(evmPrivateKey, orgDid, receiverAddress) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const transfer = await contract.transferOrganzation(orgDid, receiverAddress);
     await transfer.wait();
@@ -104,16 +109,16 @@ async function transferOrganzation(privateKey, orgDid, receiverAddress) {
 }
 
 /**
- * @param {string} privateKey - EVM privateKey
- * @param {string} schemaDid - schema id to be transfer
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
+ * @param {number} schemaDid - schema id to be transfer
  * @param {number} orgDid - new organization address to receive schema
  * @param {string} receiverAddress - EVM Address of reciever
  */
-async function transferSchema(privateKey, schemaDid, orgDid, receiverAddress) {
+async function transferSchema(evmPrivateKey, schemaDid, orgDid, receiverAddress) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const tx = await contract.transferSchema(schemaDid, orgDid, receiverAddress);
     await tx.wait();
@@ -124,15 +129,15 @@ async function transferSchema(privateKey, schemaDid, orgDid, receiverAddress) {
 }
 
 /**
- * @param {string} privateKey - EVM privateKey
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
  * @param {number} credentialDid - credential id to be verify
  * @param {number} orgDid - organization id to verify your credential
  */
-async function requestVerify(privateKey, credentialDid, orgDid) {
+async function requestVerify(evmPrivateKey, credentialDid, orgDid) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const tx = await contract.attestRequest(credentialDid, orgDid);
     await tx.wait();
@@ -143,15 +148,15 @@ async function requestVerify(privateKey, credentialDid, orgDid) {
 }
 
 /**
- * @param {string} privateKey - EVM privateKey
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
  * @param {number} credentialDid - credential id to cancel request
  * @param {number} orgDid - organization id to verify your credential
  */
-async function cancelRequestVerify(privateKey, credentialDid, orgDid) {
+async function cancelRequestVerify(evmPrivateKey, credentialDid, orgDid) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const tx = await contract.attestCancel(credentialDid, orgDid);
     await tx.wait();
@@ -162,16 +167,17 @@ async function cancelRequestVerify(privateKey, credentialDid, orgDid) {
 }
 
 /**
- * @param {string} privateKey - EVM privateKey
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
  * @param {number} credentialDid - credential id to approve
  * @param {number} orgDid - organization id to verify your credential
- * @param {boolean} approveStatus - approve or not?
+ * @param {number} approveStatus - approve or not?
+ * 0 - 1
  */
-async function VerificationApproval(privateKey, credentialDid, orgDid, approveStatus) {
+async function VerificationApproval(evmPrivateKey, credentialDid, orgDid, approveStatus) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const tx = await contract.attestValidate(credentialDid, orgDid, approveStatus);
     await tx.wait();
@@ -182,14 +188,14 @@ async function VerificationApproval(privateKey, credentialDid, orgDid, approveSt
 }
 
 /**
- * @param {string} privateKey - EVM privateKey
+ * @param {string} evmPrivateKey - EVM evmPrivateKey
  * @param {number} credentialDid - credential id to be burn
  */
-async function burnCredential(privateKey, credentialDid) {
+async function burnCredential(evmPrivateKey, credentialDid) {
   const provider = EvmRpcProvider.from(network);
   await provider.isReady();
-  const wallet = new ethers.Wallet(privateKey, provider);
-  const contract = new ethers.Contract(contractAddress, artifact.abi, wallet);
+  const evmWallet = new ethers.Wallet(evmPrivateKey, provider);
+  const contract = new ethers.Contract(contractAddress, artifact.abi, evmWallet);
   try {
     const burn = await contract.burn(credentialDid);
     await burn.wait();

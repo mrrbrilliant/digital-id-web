@@ -42,7 +42,6 @@ function MyApp({ Component, pageProps }) {
     <SafeHydrate>
       <ThemeProvider attribute="data-theme" defaultTheme={"light"}>
         <ToastContainer />
-
         <NetworkProvider>
           <WalletProvider>
             <ContractProvider>

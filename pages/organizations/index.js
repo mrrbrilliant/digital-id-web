@@ -6,6 +6,7 @@ import { VscChevronDown } from "react-icons/vsc";
 import Image from "next/image";
 // import BtnWithAuth from "../../hooks/useAuthCallback";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
 // Context
 import { WalletContext } from "../../contexts/wallet";
@@ -22,11 +23,11 @@ const initialState = {
 
 const Organizations = () => {
   // Context
-  const { publicKey } = useContext(WalletContext);
+  const { evmAddress } = useContext(WalletContext);
   const { organizations } = useContext(DataContext);
   const { contract } = useContext(ContractContext);
 
-  // const { setCb, toggleAuthenticationRequest, wallet } = useContext(WalletContext);
+  // const { setCb, toggleAuthenticationRequest, evmWallet } = useContext(WalletContext);
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
   // const [createModalOpendoc, setCreateModalOpendoc] = useState(false);
@@ -146,8 +147,8 @@ const Organizations = () => {
     console.log(organizations);
   }, [organizations]);
 
-  const ownOrgs = organizations.filter((org) => org.owner === publicKey);
-  const otherOrgs = organizations.filter((org) => org.owner !== publicKey);
+  const ownOrgs = organizations.filter((org) => org.owner === evmAddress);
+  const otherOrgs = organizations.filter((org) => org.owner !== evmAddress);
 
   return (
     <div>
@@ -227,51 +228,7 @@ const Organizations = () => {
         <div className="grid grid-cols-4 gap-7">
           {organizations &&
             ownOrgs.map((org, index) => {
-              return (
-                <div key={index} className="w-auto bg-base-100 p-4 rounded-xl transform transition-all duration-300">
-                  <div className="flex items-center space-x-4">
-                    <Image
-                      className="flex-none w-14 h-14 rounded-full object-cover"
-                      src={org.details.logo || `https://avatars.dicebear.com/api/male/${org.cid}.svg`}
-                      width={96}
-                      height={96}
-                      alt=""
-                    />
-
-                    <p className="font-bold">{org.details.name}</p>
-                  </div>
-                  <div className="align-middle">
-                    <div className="py-2 flex items-center align-middle overflow-hidden">
-                      <div className=" border-t w-full border-gray-300"></div>
-                      <p className="mx-4 text-center">Report</p>
-                      <div className="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-                  <br />
-                  <div className="flex items-center space-x-4 mb-2">
-                    <h1>Asset types :</h1>
-                    <p className="font-bold">80</p>
-                  </div>
-
-                  <div className="flex items-center space-x-4 mb-2">
-                    <h1>Assets created :</h1>
-                    <p className="font-bold">80</p>
-                  </div>
-
-                  <div className="flex items-center space-x-4">
-                    <h1>Holders :</h1>
-                    <p className="font-bold">80</p>
-                  </div>
-
-                  <div className="mt-4 cursor-pointer">
-                    <Link href={`/organizations/${org.did}`} as={`/organizations/${org.did}`}>
-                      <p className="w-full bg-primary text-white font-semibold text-center p-2 rounded-md hover:bg-opacity-80">
-                        Detail
-                      </p>
-                    </Link>
-                  </div>
-                </div>
-              );
+              return <OrganizationCard key={org.did} organization={org} />;
             })}
         </div>
       </div>
@@ -283,52 +240,8 @@ const Organizations = () => {
       </div>
       <div className="grid grid-cols-4 gap-7 mt-4">
         {organizations &&
-          otherOrgs.map((org, index) => {
-            return (
-              <div key={index} className="w-auto bg-base-100 p-4 rounded-xl transform transition-all duration-300">
-                <div className="flex items-center space-x-4">
-                  <Image
-                    className="flex-none w-14 h-14 rounded-full object-cover"
-                    src={org.details.logo || `https://avatars.dicebear.com/api/male/${org.cid}.svg`}
-                    width={96}
-                    height={96}
-                    alt=""
-                  />
-
-                  <p className="font-bold">{org.details.name}</p>
-                </div>
-                <div className="align-middle">
-                  <div className="py-2 flex items-center align-middle overflow-hidden">
-                    <div className=" border-t w-full border-gray-300"></div>
-                    <p className="mx-4 text-center">Report</p>
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                </div>
-                <br />
-                <div className="flex items-center space-x-4 mb-2">
-                  <h1>Asset types :</h1>
-                  <p className="font-bold">80</p>
-                </div>
-
-                <div className="flex items-center space-x-4 mb-2">
-                  <h1>Assets created :</h1>
-                  <p className="font-bold">80</p>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <h1>Holders :</h1>
-                  <p className="font-bold">80</p>
-                </div>
-
-                <div className="mt-4 cursor-pointer">
-                  <Link href={`/organizations/${org.did}`} as={`/organizations/${org.did}`}>
-                    <p className="w-full bg-primary text-white font-semibold text-center p-2 rounded-md hover:bg-opacity-80">
-                      Detail
-                    </p>
-                  </Link>
-                </div>
-              </div>
-            );
+          otherOrgs.map((org) => {
+            return <OrganizationCard key={org.did} organization={org} />;
           })}
       </div>
     </div>
@@ -336,3 +249,83 @@ const Organizations = () => {
 };
 
 export default Organizations;
+
+function OrganizationCard({ organization }) {
+  const { schemas, credentials, isDataReady } = useContext(DataContext);
+  const [schemaCount, setSchemaCount] = useState();
+  const [credentialCount, setCredentialCount] = useState();
+  const [userCount, setUserCount] = useState();
+
+  const theseSchema = schemas.filter((s) => s.parent === organization.did).map((s) => s.did);
+  const theseCredentials = credentials.filter((c) => theseSchema.includes(c.parent));
+  const users = _.uniqBy(theseCredentials, "owner");
+
+  useEffect(() => {
+    if (isDataReady && schemas && typeof schemaCount === "undefined") {
+      setSchemaCount(theseSchema.length);
+    }
+  }, [isDataReady, schemas, schemaCount, credentials, setSchemaCount, theseSchema]);
+
+  useEffect(() => {
+    if (isDataReady && schemas && credentials && typeof credentialCount === "undefined") {
+      setCredentialCount(theseCredentials.length);
+    }
+  }, [isDataReady, schemas, credentials, credentialCount, setCredentialCount, theseCredentials]);
+
+  useEffect(() => {
+    if (isDataReady && schemas && credentials && typeof userCount === "undefined") {
+      setUserCount(users.length);
+    }
+  }, [isDataReady, schemas, credentials, userCount, setUserCount, users]);
+
+  useEffect(() => {
+    console.log("theseSchema", theseSchema);
+    // console.log("credentials", theseCredentials);
+  });
+
+  return (
+    <div className="w-auto bg-base-100 p-4 rounded-xl transform transition-all duration-300">
+      <div className="flex items-center space-x-4">
+        <Image
+          className="flex-none w-14 h-14 rounded-full object-cover"
+          src={organization.details.logo || `https://avatars.dicebear.com/api/male/${organization.cid}.svg`}
+          width={96}
+          height={96}
+          alt=""
+        />
+
+        <p className="font-bold">{organization.details.name}</p>
+      </div>
+      <div className="align-middle">
+        <div className="py-2 flex items-center align-middle overflow-hidden">
+          <div className=" border-t w-full border-gray-300"></div>
+          <p className="mx-4 text-center">Report</p>
+          <div className="w-full border-t border-gray-300"></div>
+        </div>
+      </div>
+      <br />
+      <div className="flex items-center space-x-4 mb-2">
+        <h1>Asset types :</h1>
+        <p className="font-bold">{schemaCount || 0}</p>
+      </div>
+
+      <div className="flex items-center space-x-4 mb-2">
+        <h1>Assets created :</h1>
+        <p className="font-bold">{credentialCount || 0}</p>
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <h1>Holders :</h1>
+        <p className="font-bold">{userCount || 0}</p>
+      </div>
+
+      <div className="mt-4 cursor-pointer">
+        <Link href={`/organizations/${organization.did}`} as={`/organizations/${organization.did}`}>
+          <p className="w-full bg-primary text-white font-semibold text-center p-2 rounded-md hover:bg-opacity-80">
+            Detail
+          </p>
+        </Link>
+      </div>
+    </div>
+  );
+}
