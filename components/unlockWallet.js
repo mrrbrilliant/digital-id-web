@@ -30,36 +30,36 @@ export default function UnlockWallet() {
   }
 
   // ✅ Promise check
-  function isPromise(p) {
-    if (typeof p === "object" && typeof p.then === "function") {
-      return true;
-    }
+  // function isPromise(p) {
+  //   if (typeof p === "object" && typeof p.then === "function") {
+  //     return true;
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 
   // ✅ Check if return value is promise
-  const returnsPromise = useCallback((f) => {
-    if (f.constructor.name === "AsyncFunction" || (typeof f === "function" && isPromise(f()))) {
-      console.log("✅ Function returns promise");
-      return true;
-    }
+  // const returnsPromise = useCallback((f) => {
+  //   if (f.constructor.name === "AsyncFunction" || (typeof f === "function" && isPromise(f()))) {
+  //     console.log("✅ Function returns promise");
+  //     return true;
+  //   }
 
-    console.log("⛔️ Function does NOT return promise");
-    return false;
-  }, []);
+  //   console.log("⛔️ Function does NOT return promise");
+  //   return false;
+  // }, []);
 
-  useEffect(() => {
-    if (cb) {
-      if (unlocked && contractRW) {
-        if (returnsPromise(cb)) {
-          cb().then(() => {});
-          return;
-        }
-        cb();
-      }
-    }
-  }, [unlocked, evmWallet, contractRW, cb, returnsPromise]);
+  // useEffect(() => {
+  //   if (cb) {
+  //     if (unlocked && contractRW) {
+  //       if (returnsPromise(cb)) {
+  //         cb().then(() => {});
+  //         return;
+  //       }
+  //       cb();
+  //     }
+  //   }
+  // }, [unlocked, evmWallet, contractRW, cb, returnsPromise]);
 
   if (show) {
     return (

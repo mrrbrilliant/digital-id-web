@@ -3,6 +3,7 @@ import "react-toastify/dist/ReactToastify.min.css";
 import React, { useEffect, useState } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
 import { ToastContainer, toast } from "react-toastify";
+import { initWasm } from "@polkadot/wasm-crypto/initOnlyAsm";
 
 // Contexts
 import NetworkProvider from "../contexts/network";
@@ -37,6 +38,10 @@ function MyApp({ Component, pageProps }) {
     }
     setTheme(_theme);
   }, [setTheme]);
+
+  useEffect(() => {
+    initWasm();
+  }, []);
 
   return (
     <SafeHydrate>

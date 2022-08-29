@@ -3,6 +3,8 @@ import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import { options } from "@selendra/api";
 import { ApiPromise, WsProvider, Keyring } from "@polkadot/api";
+// import { cryptoWaitReady } from "@polkadot/util-crypto";
+
 import { createClaimSignature } from "@selendra/eth-transactions";
 import { NetworkContext } from "./network";
 import axios from "axios";
@@ -38,6 +40,8 @@ export default function WalletProvider({ children }) {
   }
 
   async function createSubstrateWallet({ mnemonic }) {
+    // await initWasm();
+    // await cryptoWaitReady();
     const keyring = new Keyring({
       type: "sr25519",
       ss58Format: 204,
@@ -61,6 +65,7 @@ export default function WalletProvider({ children }) {
     try {
       const substrateProvider = process.env.NEXT_PUBLIC_WSS_ADDRESS || "";
       const provider = new WsProvider(substrateProvider);
+      // await cryptoWaitReady();
       const api = new ApiPromise(options({ provider }));
       await api.isReadyOrError;
       const chainId = parseInt(api.consts.evmAccounts.chainId.toString());
@@ -139,6 +144,7 @@ export default function WalletProvider({ children }) {
           return resolve(true);
         }
       } catch (error) {
+        console.log(error);
         return reject(error);
       }
     });
