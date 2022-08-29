@@ -51,7 +51,7 @@ export default function ContractProvider({ children }) {
     if (network && evmWallet && contract && contract["provider"] === null) {
       const _evmWallet = evmWallet.connect(network);
       contract.connect(_evmWallet);
-      console.log("reconnect");
+      console.log("reconnect", contract.provider);
     }
   });
 

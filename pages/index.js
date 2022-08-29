@@ -359,7 +359,7 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
 
               {credential && credential.state == 4 && (
                 <button
-                  className="p-2 btn btn-primary flex-grow text-white w-32 leading-none rounded-xl font-bold mt-2 bg-primarypink hover:bg-opacity-75 text-xs uppercase"
+                  className="p-2 btn btn-primary btn-sm flex-grow text-white w-32 leading-none rounded-xl font-bold mt-2 bg-primarypink hover:bg-opacity-75 text-xs uppercase"
                   onClick={() => setOpenTransfer(true)}
                 >
                   Transfer

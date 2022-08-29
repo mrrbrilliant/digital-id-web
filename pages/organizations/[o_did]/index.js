@@ -25,6 +25,8 @@ export default function Org() {
   const [showBurnOrganization, setShowBurnOrganization] = useState(false);
   const [showBurnSchema, setShowBurnSchema] = useState(false);
   const [toBurnSchema, setToBurnSchema] = useState(initialToBurnSchema);
+  const [showTransferOrganization, setShowTransferOrganization] = useState(false);
+  const [toTransferOrganization, setToTransferOrganization] = useState("");
 
   const [isOwner, setIsOwner] = useState();
   const [organization, setOrganization] = useState();
@@ -39,6 +41,10 @@ export default function Org() {
 
   function toggleBurnOrganizationModal() {
     setShowBurnOrganization(!showBurnOrganization);
+  }
+
+  function toggleTransferOrganization() {
+    setShowTransferOrganization(!showTransferOrganization);
   }
 
   const handleBurnOrganization = async () => {
@@ -59,15 +65,14 @@ export default function Org() {
   };
 
   async function handleBurnSchema() {
-    const title = toBurnSchema.title;
-    const toaster = toast.loading(`Burning "${title}" schema`);
+    const toaster = toast.loading(`Burning organization schema`);
     try {
       const burn = await contract.burn(toBurnSchema.did);
       await burn.wait();
       toast.update(toaster, { render: "Burnt successfully.", isLoading: false, type: "success", autoClose: 3000 });
     } catch (error) {
       toast.update(toaster, {
-        render: `Failed to burn "${title}" schema!`,
+        render: `Failed to burn organization schema!`,
         isLoading: false,
         type: "error",
         autoClose: 5000,
@@ -75,6 +80,33 @@ export default function Org() {
     }
     setShowBurnSchema(false);
     setToBurnSchema(initialToBurnSchema);
+  }
+
+  async function handleTransferOrganization() {
+    if (schemas && schemas.length > 0) {
+      toast.error("Please transfer all of the schemas to other organization first or either burn them.");
+      return;
+    }
+    const toaster = toast.loading(`Transfering organization`);
+    try {
+      const tx = await contract.transferOrganzation(o_did, toTransferOrganization);
+      await tx.wait();
+      toast.update(toaster, {
+        render: "Transfered organization successfully.",
+        isLoading: false,
+        type: "success",
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.log(error);
+      toast.update(toaster, {
+        render: `Failed ${error.toString()}`,
+        isLoading: false,
+        type: "error",
+        autoClose: 5000,
+      });
+    }
+    setShowTransferOrganization(false);
   }
 
   const schemaByOrg = allSchemas.filter((s) => s.parent == o_did);
@@ -86,9 +118,9 @@ export default function Org() {
 
   const initSchemasData = useCallback(() => {
     if (allSchemas.length === 0) setShemas([]);
-    const _schemas = allSchemas.filter((s) => s.details.parent == o_did);
+    const _schemas = schemaByOrg;
     setShemas(_schemas);
-  }, [allSchemas, o_did, setShemas]);
+  }, [allSchemas, schemaByOrg, setShemas]);
 
   const checkOwership = useCallback(() => {
     const ownership = evmAddress === organization.owner;
@@ -139,20 +171,47 @@ export default function Org() {
           </button>
         </div>
       </Modal>
+      {isOwner && (
+        <Modal open={showTransferOrganization} toggle={toggleTransferOrganization}>
+          <h3 className="font-bold text-lg mb-6">Transfer Organization</h3>
+          <div>
+            <label className="label" htmlFor="to">
+              <span className="label-text uppercase">Owner address</span>
+              <span className="label-text-alt font-mono">0X000000000000000000000000000000000000</span>
+            </label>
+            <input
+              className="input input-bordered w-full font-mono"
+              type="text"
+              name="to"
+              value={toTransferOrganization}
+              onChange={(e) => setToTransferOrganization(e.target.value)}
+              disabled={!isOwner}
+            />
+          </div>
+          <div className="modal-action">
+            <button className="btn btn-error" onClick={handleTransferOrganization}>
+              Transfer
+            </button>
+            <button className="btn btn-info" onClick={toggleTransferOrganization}>
+              Cancel
+            </button>
+          </div>
+        </Modal>
+      )}
       <div className="flex justify-between  rounded-xl">
         <h1 className="font-bold text-xl p-2">{organization.details.name}</h1>
 
         {isOwner && (
           <div>
-            <label
-              className="btn btn-error btn-outline rounded-xl modal-button ml-2"
-              onClick={toggleBurnOrganizationModal}
-            >
+            <label className="btn btn-sm btn-warning rounded-xl modal-button ml-2" onClick={toggleTransferOrganization}>
+              Transfer Organzation
+            </label>
+            <label className="btn btn-error btn-sm rounded-xl modal-button ml-2" onClick={toggleBurnOrganizationModal}>
               Burn Organzation
             </label>
 
             <Link href={`/organizations/${o_did}/mint_schema`}>
-              <label className="btn bg-primary rounded-xl modal-button ml-2" htmlFor="my-modal-3">
+              <label className="btn btn-info btn-sm rounded-xl modal-button ml-2" htmlFor="my-modal-3">
                 Mint Schema
               </label>
             </Link>
@@ -161,12 +220,10 @@ export default function Org() {
       </div>
 
       <br />
-      {/* <div>
-        <pre>{JSON.stringify(allSchemas, null, 4)}</pre>
-      </div> */}
+
       <div className="grid grid-cols-2 mt-3 gap-7">
-        {allSchemas &&
-          schemaByOrg.map((schema) => {
+        {schemas &&
+          schemas.map((schema) => {
             return (
               <TypeCard
                 key={schema.cid}
@@ -179,17 +236,6 @@ export default function Org() {
             );
           })}
       </div>
-      {/* {isOwner && unVerifiedDocs.length > 0 && (
-        <div className="my-10">
-          <h3 className="font-bold text-xl p-2">Attestation Requests</h3>
-          <div className="grid grid-cols-3 mt-6 gap-6 ">
-            {unVerifiedDocs &&
-              unVerifiedDocs.map((res, index) => {
-                return <DocumentCard key={index} res={res} setIsCheckUnverifiedDocs={setIsCheckUnverifiedDocs} />;
-              })}
-          </div>
-        </div>
-      )} */}
       <br />
     </>
   );

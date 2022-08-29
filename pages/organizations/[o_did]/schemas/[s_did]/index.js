@@ -7,6 +7,7 @@ import { VscVerified, VscUnverified } from "react-icons/vsc";
 import Link from "next/link";
 // import Badge from "../../../components/badge";
 import { toast } from "react-toastify";
+import Modal from "../../../../../components/modal";
 
 // Contexts
 import { DataContext } from "../../../../../contexts/data";
@@ -17,10 +18,18 @@ export default function CredentialsOfSchema() {
   // Contexts
   const { contract } = useContext(ContractContext);
   const { organizations, schemas, credentials: allCredentails, isDataReady } = useContext(DataContext);
+  const { evmAddress } = useContext(WalletContext);
   // States
   const [schema, setSchema] = useState(null);
   const [organization, setOrganization] = useState(null);
   const [credentials, setCredentials] = useState(null);
+  const [showTransferSchema, setShowTransferSchema] = useState(false);
+  const [toTransferSchema, setToTransferSchema] = useState({
+    orgId: "",
+    ownerAddress: "",
+  });
+  const [isOwner, setIsOwner] = useState(false);
+
   // NEXT
   const router = useRouter();
   const { o_did, s_did } = router.query;
@@ -29,6 +38,36 @@ export default function CredentialsOfSchema() {
   const thisOrganization = organizations.filter((o) => o.did == o_did)[0];
   const theseCredentials = allCredentails.filter((c) => c.parent == s_did);
 
+  function handleTransferChange(e) {
+    const { name, value } = e.target;
+    setToTransferSchema({ ...toTransferSchema, [name]: value });
+  }
+  function toggleTransferSchema() {
+    setShowTransferSchema(!showTransferSchema);
+  }
+
+  async function handleTranserSchema() {
+    const toaster = toast.loading(`Transfering schema`);
+    try {
+      const tx = await contract.transferSchema(s_did, toTransferSchema.orgId, toTransferSchema.ownerAddress);
+      await tx.wait();
+      toast.update(toaster, {
+        render: "Transfered schema successfully.",
+        isLoading: false,
+        type: "success",
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.log(error);
+      toast.update(toaster, {
+        render: `Failed ${error.toString()}`,
+        isLoading: false,
+        type: "error",
+        autoClose: 5000,
+      });
+    }
+    setShowTransferSchema(false);
+  }
   // Validate schema exists
   useEffect(() => {
     if (isDataReady && thisSchema.length === 0) {
@@ -62,13 +101,64 @@ export default function CredentialsOfSchema() {
   }, [isDataReady, thisSchema, schema, setSchema]);
 
   useEffect(() => {
-    console.log("o_did", o_did);
-    console.log("s_did", s_did);
-  }, [o_did, s_did]);
+    if (organization && evmAddress && o_did) {
+      if (organization.owner === evmAddress) {
+        setIsOwner(true);
+      }
+    }
+  }, [o_did, evmAddress, organization]);
 
   return (
     <div>
-      <h1 className="text-3xl font-bold my-6">{schema?.details.title}</h1>
+      {isOwner && (
+        <Modal open={showTransferSchema} toggle={toggleTransferSchema}>
+          <h3 className="font-bold text-lg mb-6">Transfer Organization</h3>
+          <div>
+            <label className="label" htmlFor="to">
+              <span className="label-text uppercase">Owner address</span>
+              <span className="label-text-alt font-mono">0X000000000000000000000000000000000000</span>
+            </label>
+            <input
+              className="input input-bordered w-full font-mono"
+              type="text"
+              name="ownerAddress"
+              value={toTransferSchema.ownerAddress}
+              onChange={handleTransferChange}
+              disabled={!isOwner}
+            />
+            <label className="label" htmlFor="to">
+              <span className="label-text uppercase">Organization DID</span>
+              <span className="label-text-alt font-mono"></span>
+            </label>
+            <input
+              className="input input-bordered w-full font-mono"
+              type="number"
+              name="orgId"
+              step={1}
+              min={0}
+              value={toTransferSchema.orgId}
+              onChange={handleTransferChange}
+              disabled={!isOwner}
+            />
+          </div>
+          <div className="modal-action">
+            <button className="btn btn-error" onClick={handleTranserSchema}>
+              Transfer
+            </button>
+            <button className="btn btn-info" onClick={toggleTransferSchema}>
+              Cancel
+            </button>
+          </div>
+        </Modal>
+      )}
+      <div className="flex place-items-center">
+        <h1 className="text-3xl font-bold my-6">{schema?.details.title}</h1>
+        <div className="flex-grow flex place-content-end">
+          <button className="btn btn-warning btn-sm" onClick={toggleTransferSchema}>
+            Transfer Schema
+          </button>
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-6">
         {credentials &&
           credentials.length > 0 &&
@@ -116,8 +206,8 @@ const DocumentCard = ({ credential, schema, organization }) => {
 
   return (
     <div className=" rounded-2xl px-6 py-4  border-gray-100 bg-base-100 relative overflow-hidden">
-      <div className="flex flex-col">
-        <div className="flex flex-row place-content-center">
+      <div className="flex flex-col ">
+        <div className="flex flex-row place-content-center gap-4">
           <div className="form-control">
             <label className="label pl-0">
               <span className="label-text font-bold">DID</span>
