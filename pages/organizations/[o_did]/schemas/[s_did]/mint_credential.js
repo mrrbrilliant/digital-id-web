@@ -736,12 +736,3 @@ function InputType({ properties, name, value, handleFormChange }) {
 
   return str_input;
 }
-
-// const dataTypes = [
-//   { label: "Text", value: "string", default: true },
-//   { label: "Number", value: "number", default: false },
-//   { label: "Boolean", value: "boolean", default: false },
-//   { label: "List", value: "array", default: false },
-//   { label: "Object", value: "object", default: false },
-//   { label: "Images", value: "images", default: false },
-// ];

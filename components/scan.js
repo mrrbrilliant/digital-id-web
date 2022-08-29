@@ -4,7 +4,7 @@ import { QrReader } from "react-qr-reader";
 import { useRouter } from "next/router";
 import { WalletContext } from "../contexts/wallet";
 
-export default function Scanner({ toggleQr }) {
+export default function Scanner({ toggleQr, isOn }) {
   const { evmWallet, show, toggleAuthenticationRequest, evmAddress } = useContext(WalletContext);
   const [data, setData] = useState({
     id: "",
@@ -77,6 +77,8 @@ export default function Scanner({ toggleQr }) {
     }
   }, [evmWallet, toggleAuthenticationRequest, show]);
 
+  if (!isOn) null;
+
   return (
     <div
       className="w-full h-full flex place-content-center place-items-center fixed top-0 left-0 backdrop-blur-md z-auto"
@@ -86,19 +88,22 @@ export default function Scanner({ toggleQr }) {
         className="scanbox w-[350px] h-[350px] flex place-content-center place-items-center  rounded-3xl overflow-hidden border-8 bg-primary bg-opacity-30 border-primary border-opacity-30"
         onClick={(e) => e.stopPropagation()}
       >
-        <QrReader
-          constraints={{ facingMode: "environment" }}
-          onResult={(result, error) => {
-            if (!!result) {
-              handleJson(result);
-            }
+        {isOn && (
+          <QrReader
+            scanDelay={500}
+            constraints={{ facingMode: "environment" }}
+            onResult={(result, error) => {
+              if (!!result) {
+                handleJson(result);
+              }
 
-            if (!!error) {
-              console.info(error);
-            }
-          }}
-          className=" w-[500px] scale-[140%]"
-        />
+              if (!!error) {
+                console.info(error);
+              }
+            }}
+            className=" w-[500px] scale-[140%]"
+          />
+        )}
       </div>
     </div>
   );

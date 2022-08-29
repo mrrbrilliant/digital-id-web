@@ -154,16 +154,24 @@ export default function CredentialsOfSchema() {
       <div className="flex place-items-center">
         <h1 className="text-3xl font-bold my-6">{schema?.details.title}</h1>
         <div className="flex-grow flex place-content-end">
-          <button className="btn btn-warning btn-sm" onClick={toggleTransferSchema}>
-            Transfer Schema
-          </button>
+          {isOwner && (
+            <button className="btn btn-warning btn-sm" onClick={toggleTransferSchema}>
+              Transfer Schema
+            </button>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6">
         {credentials &&
           credentials.length > 0 &&
           credentials.map((credential) => (
-            <DocumentCard key={credential.did} credential={credential} schema={schema} organization={organization} />
+            <DocumentCard
+              key={credential.did}
+              credential={credential}
+              schema={schema}
+              organization={organization}
+              isOwner={isOwner}
+            />
           ))}
 
         {credentials && credentials.length === 0 && "No data"}
@@ -172,7 +180,7 @@ export default function CredentialsOfSchema() {
   );
 }
 
-const DocumentCard = ({ credential, schema, organization }) => {
+const DocumentCard = ({ credential, schema, organization, isOwner }) => {
   const { contract } = useContext(ContractContext);
   const [verified, setVerified] = useState();
 
@@ -201,8 +209,6 @@ const DocumentCard = ({ credential, schema, organization }) => {
       verification();
     }
   }, [contract, verified, verification]);
-
-  console.log();
 
   return (
     <div className=" rounded-2xl px-6 py-4  border-gray-100 bg-base-100 relative overflow-hidden">
@@ -252,34 +258,31 @@ const DocumentCard = ({ credential, schema, organization }) => {
             )}
           </div>
           <div className="flex flex-row place-items-center place-content-center gap-6">
-            <button
-              // target="_blank"
-              // href={`/profile?user=${credential.owner}&typeId=${credential.details.parent}`}
-              // rel="noopener noreferrer"
-              className="py-2 px-4 rounded-2xl btn btn-primary"
-            >
-              Detail
-            </button>
-            {!verified && (
-              <button
-                className="py-2 px-4 btn btn-warning rounded-2xl"
-                onClick={() => {
-                  handleRevoke(1);
-                }}
-              >
-                Verify
-              </button>
-            )}
-            {isRevokable && (
-              <button
-                className="py-2 px-4 flex-grow btn btn-warning rounded-2xl"
-                onClick={() => {
-                  verified && handleRevoke(0);
-                  !verified && handleRevoke(1);
-                }}
-              >
-                {verified ? "Revoke" : "Unrevoke"}
-              </button>
+            <button className="py-2 px-4 rounded-2xl btn btn-primary">Detail</button>
+            {isOwner && (
+              <>
+                {!verified && (
+                  <button
+                    className="py-2 px-4 btn btn-warning rounded-2xl"
+                    onClick={() => {
+                      handleRevoke(1);
+                    }}
+                  >
+                    Verify
+                  </button>
+                )}
+                {isRevokable && (
+                  <button
+                    className="py-2 px-4 flex-grow btn btn-warning rounded-2xl"
+                    onClick={() => {
+                      verified && handleRevoke(0);
+                      !verified && handleRevoke(1);
+                    }}
+                  >
+                    {verified ? "Revoke" : "Unrevoke"}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
