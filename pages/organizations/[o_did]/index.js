@@ -252,12 +252,7 @@ export default function Org() {
 
       <br />
 
-      <div
-        className="grid gap-6 mt-4 p-4 md:p-0"
-        style={{
-          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-        }}
-      >
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4 p-4 md:p-0">
         {schemas &&
           schemas.map((schema) => {
             return (
@@ -285,17 +280,9 @@ const TypeCard = ({ type, isOwner, orgId, setToBurnSchema, toggleBurnSchemaModal
 
   return (
     <div className="w-auto rounded-xl p-6  border-gray-100 bg-base-100 relative">
-      <div className="flex md:gap-6">
-        <div className="w-40 h-40 text-center hidden md:block">
-          <Image
-            className="w-40 h-40 mx-auto object-contain"
-            src={type.details.images[0]}
-            alt=""
-            width={160}
-            height={160}
-            layout="responsive"
-            objectFit="contain"
-          />
+      <div className="grid gap-6" style={{ gridTemplateColumns: "140px 1fr" }}>
+        <div className="flex place-content-center place-items-center">
+          <img src={type.details.images[0]} alt="" className="w-[120px] h-auto" />
         </div>
         <div className="flex flex-col gap-4 place-content-start place-items-start">
           <h4 className="text-xl font-semibold">{type.details.title}</h4>
