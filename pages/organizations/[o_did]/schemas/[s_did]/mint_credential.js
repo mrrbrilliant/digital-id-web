@@ -212,21 +212,21 @@ export default function MintCredential() {
   //   console.log(formData);
   // }, [formData]);
 
-  // function handleSelectFiles(e) {
-  //   const files = e.target.files;
-  //   let _files = [];
+  function handleSelectFiles(e) {
+    const files = e.target.files;
+    let _files = [];
 
-  //   for (let i = 0; i < files.length; i++) {
-  //     _files.push(files[i]);
-  //   }
+    for (let i = 0; i < files.length; i++) {
+      _files.push(files[i]);
+    }
 
-  //   setAttachments(_files[0]);
-  // }
+    setAttachments(_files[0]);
+  }
 
-  // function parseCSV(_csvContent) {
-  //   const lines = Papa.parse(_csvContent);
-  //   return lines;
-  // }
+  function parseCSV(_csvContent) {
+    const lines = Papa.parse(_csvContent);
+    return lines;
+  }
 
   // function toNumber(number) {
   //   const toUnit = ethers.utils.formatEther(number).toString();
@@ -234,28 +234,28 @@ export default function MintCredential() {
   //   return roundedCount;
   // }
 
-  // function uploadWithParams(data) {
-  //   const str = JSON.stringify(data);
-  //   const strblob = new Blob([str], { type: "text/plain" });
+  function uploadWithParams(data) {
+    const str = JSON.stringify(data);
+    const strblob = new Blob([str], { type: "text/plain" });
 
-  //   const formdata = new FormData();
-  //   formdata.append("file", strblob, "file.json");
+    const formdata = new FormData();
+    formdata.append("file", strblob, "file.json");
 
-  //   const requestOptions = {
-  //     method: "POST",
-  //     body: formdata,
-  //   };
+    const requestOptions = {
+      method: "POST",
+      body: formdata,
+    };
 
-  //   return fetch("https://gateway.kumandra.org/api/add", requestOptions)
-  //     .then((response) => response.text())
-  //     .then((result) => {
-  //       const data = result.split("\n");
-  //       return data.filter((d) => d !== "");
-  //     })
-  //     .catch((error) => {
-  //       throw error;
-  //     });
-  // }
+    return fetch("https://gateway.kumandra.org/api/add", requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        const data = result.split("\n");
+        return data.filter((d) => d !== "");
+      })
+      .catch((error) => {
+        throw error;
+      });
+  }
 
   // function handleDocChange(e) {
   //   const { name, value, type, checked } = e.target;
@@ -324,54 +324,112 @@ export default function MintCredential() {
   //   }
   // };
 
-  // async function bulkCreate(data) {
-  //   const valids = [];
-  //   const invalids = [];
-  //   for (let row = 0; row < data.length; row++) {
-  //     const { ownerAddress, ...others } = data[row];
-  //     const validator = new ZSchema({
-  //       ignoreUnresolvableReferences: true,
-  //       noEmptyStrings: true,
-  //       noExtraKeywords: false,
-  //     });
+  async function bulkCreate(data) {
+    const valids = [];
+    const invalids = [];
+    for (let row = 0; row < data.length; row++) {
+      const { ownerAddress, ...others } = data[row];
+      const validator = new ZSchema({
+        ignoreUnresolvableReferences: true,
+        noEmptyStrings: true,
+        noExtraKeywords: false,
+        noEmptyArrays: true,
+      });
 
-  //     const valid = validator.validate(others, schema);
-  //     const _errors = validator.getLastErrors();
-  //     if (_errors) {
-  //       console.log(_errors);
-  //       invalids.push(data[row]);
-  //     }
-  //     if (valid) {
-  //       valids.push(data[row]);
-  //     }
-  //   }
+      const valid = validator.validate(others, schema);
+      const _errors = validator.getLastErrors();
+      if (_errors) {
+        console.log(_errors);
+        invalids.push(data[row]);
+      }
+      if (valid) {
+        valids.push(data[row]);
+      }
+    }
 
-  //   if (invalids.length > 0) {
-  //     console.log("INVALIDS: ", invalids);
-  //     return;
-  //   }
-  //   const faileds = [];
+    if (invalids.length > 0) {
+      console.log("INVALIDS: ", invalids);
+      return;
+    }
+    const faileds = [];
+    let successCount = 0;
+    let failedCount = 0;
+    const progress = toast.loading(`Progress 0 of ${valids.length}`);
+    const success = toast.loading(`Success 0 of ${valids.length}`);
+    const failed = toast.loading(`Failed 0 of ${valids.length}`);
+    let isReady = false;
+    for (let row = 0; row < valids.length; row++) {
+      setTimeout(async () => {
+        const { ownerAddress, ...others } = valids[row];
 
-  //   for (let row = 0; row < valids.length; row++) {
-  //     setTimeout(async () => {
-  //       const { ownerAddress, ...others } = valids[row];
+        try {
+          toast.update(progress, { render: `Progress ${row + 1} of ${valids.length}` });
+          const data = await uploadWithParams(others);
+          if (data) {
+            const _data = JSON.parse(data[0]);
+            const CID = _data.Hash;
+            const mint = await contract.mintDocument(CID, schemaId);
+            await mint.wait();
+            const _successCount = successCount + 1;
+            if (row === valids.length - 1) {
+              toast.update(progress, { render: `Done!`, isLoading: false, autoClose: 5000, type: "info" });
+              toast.update(success, {
+                render: `Success ${_successCount} of ${valids.length}`,
+                isLoading: false,
+                type: "success",
+                autoClose: 5000,
+              });
+              toast.update(failed, {
+                render: `Failed ${failedCount} of ${valids.length}`,
+                isLoading: false,
+                type: "error",
+                autoClose: 5000,
+              });
+            } else {
+              toast.update(success, {
+                render: `Success ${_successCount} of ${valids.length}`,
+                isLoading: true,
+                type: "success",
+              });
+            }
+            successCount = _successCount;
+          }
+        } catch (error) {
+          faileds.push(valids[row]);
 
-  //       try {
-  //         const data = await uploadWithParams(others);
-  //         if (data) {
-  //           const _data = JSON.parse(data[0]);
-  //           const propertyURI = `https://gateway.kumandra.org/files/${_data.Hash}`;
-  //           const propertyHash = ethers.utils.sha256(ethers.utils.toUtf8Bytes(propertyURI));
-  //           const toCreateData = { ...document, to: ownerAddress, propertyURI, propertyHash };
-  //         }
-  //       } catch (error) {
-  //         faileds.push(valids[row]);
-
-  //         return;
-  //       }
-  //     }, row * 5000);
-  //   }
-  // }
+          const _failedCount = failedCount + 1;
+          if (row === valids.length - 1) {
+            toast.update(progress, { render: `Done!`, isLoading: false, autoClose: 5000, type: "info" });
+            toast.update(success, {
+              render: `Success ${successCount} of ${valids.length}`,
+              isLoading: false,
+              type: "success",
+              autoClose: 5000,
+            });
+            toast.update(failed, {
+              render: `Failed ${_failedCount} of ${valids.length}`,
+              isLoading: false,
+              type: "error",
+              autoClose: 5000,
+            });
+          } else {
+            toast.update(failed, {
+              render: `Failed ${_failedCount} of ${valids.length}`,
+              isLoading: true,
+              type: "error",
+            });
+          }
+          toast.error(error.toString());
+          failedCount = _failedCount;
+        }
+        if (row === valids.length - 1) {
+          toast.dismiss(progress);
+          toast.dismiss(success);
+          toast.dismiss(failed);
+        }
+      }, row * 5000);
+    }
+  }
 
   // useEffect(() => {
   //   if (!isCTLoading) {
@@ -457,59 +515,62 @@ export default function MintCredential() {
   //   }
   // }, [isOwnOrg, document, setDocument, evmAddress]);
 
-  // useEffect(() => {
-  //   if (attachments) {
-  //     const file_reader = new FileReader();
-  //     let file = "";
-  //     file_reader.onloadend = (data) => {
-  //       const d = data.target?.result;
-  //       setCsvContent(d);
-  //     };
-  //     file_reader.readAsText(attachments);
-  //   }
-  // }, [attachments]);
+  useEffect(() => {
+    if (attachments) {
+      const file_reader = new FileReader();
+      let file = "";
+      file_reader.onloadend = (data) => {
+        const d = data.target?.result;
+        setCsvContent(d);
+      };
+      file_reader.readAsText(attachments);
+    }
+  }, [attachments]);
 
-  // useEffect(() => {
-  //   if (csvContent !== "") {
-  //     const result = parseCSV(csvContent);
-  //     const [headers, ...body] = result.data;
-  //     const data = [];
+  useEffect(() => {
+    if (csvContent !== "") {
+      const result = parseCSV(csvContent);
 
-  //     for (let row = 0; row < body.length; row++) {
-  //       const obj = {};
-  //       for (let col = 0; col < body[row].length; col++) {
-  //         obj[headers[col]] = body[row][col];
-  //       }
-  //       data.push(obj);
-  //     }
+      const [headers, ...body] = result.data;
+      const data = [];
 
-  //     let keys = [];
-  //     Object.keys(schema.properties).forEach((property) => {
-  //       const t = schema["properties"][property]["type"];
-  //       if (t === "array") {
-  //         keys.push(property);
-  //       }
-  //     });
+      for (let row = 0; row < body.length; row++) {
+        const obj = {};
+        for (let col = 0; col < body[row].length; col++) {
+          obj[headers[col]] = body[row][col];
+        }
+        data.push(obj);
+      }
+      let keys = [];
 
-  //     if (keys.length === 0) {
-  //       return;
-  //     }
+      Object.keys(schema.details.properties).forEach((property) => {
+        const t = schema["details"]["properties"][property]["type"];
 
-  //     for (let key = 0; key < keys.length; key++) {
-  //       for (let d = 0; d < data.length; d++) {
-  //         const row = data[d][keys[key]];
+        keys.push(property);
+      });
 
-  //         const isarray = Array.isArray(row);
+      if (keys.length === 0) {
+        return;
+      }
 
-  //         if (isarray) continue;
-  //         const _row = row.split(",").filter((r) => r !== "");
-  //         data[d][keys[key]] = _row;
-  //       }
-  //     }
+      for (let key = 0; key < keys.length; key++) {
+        for (let d = 0; d < data.length; d++) {
+          const row = data[d][keys[key]];
+          const isarray = Array.isArray(row);
+          console.log("row:", isarray, row);
 
-  //     setBulkData(data);
-  //   }
-  // }, [csvContent, schema]);
+          if (isarray) {
+            const _row = row.split(",").filter((r) => r !== "");
+            data[d][keys[key]] = _row;
+            continue;
+          }
+
+          data[d][keys[key]] = row;
+        }
+      }
+      setBulkData(data);
+    }
+  }, [csvContent, schema]);
 
   // useEffect(() => {
   //   if (!evmWallet && !show) {
@@ -535,6 +596,9 @@ export default function MintCredential() {
   //   })
   // }, [schema]);
 
+  useEffect(() => {
+    console.log(bulkData);
+  }, [bulkData]);
   return (
     <div className="w-full">
       <div className="flex place-content-between place-items-center mb-10">
@@ -565,7 +629,7 @@ export default function MintCredential() {
             className="input input-bordered w-full hidden"
             type="file"
             accept=".csv"
-            // onChange={handleSelectFiles}
+            onChange={handleSelectFiles}
           />
         </div>
       )}
@@ -591,28 +655,28 @@ export default function MintCredential() {
           );
         })}
 
-      {/* {bulkData.length > 0 &&
+      {bulkData.length > 0 &&
         bulkData.map((row, index) => (
           <div key={index}>
             <pre>{JSON.stringify(row)}</pre>
           </div>
-        ))} */}
+        ))}
 
-      {/* {bulkData.length > 0 && (
+      {bulkData.length > 0 && (
         <div className="w-full flex justify-end space-x-4 mt-8">
-          {isOwnOrg && (
+          {isOwner && (
             <button className="btn btn-block btn-primary" onClick={() => bulkCreate(bulkData)}>
               Create all
             </button>
           )}
 
-          {!isOwnOrg && (
+          {/* {!isOwner && (
             <button className="btn btn-block btn-primary" onClick={handleSubmitDoc}>
               Submit All
             </button>
-          )}
+          )} */}
         </div>
-      )} */}
+      )}
 
       {bulkData.length === 0 && (
         <div className="w-full flex justify-end space-x-4 mt-8">

@@ -282,7 +282,6 @@ const MintSchema = () => {
         <form>
           <div>
             <h1 className="font-bold text-2xl mb-6">Documents Template</h1>
-            <h2>{parent}</h2>
           </div>
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col space-y-4">
@@ -313,7 +312,7 @@ const MintSchema = () => {
 
             <div className="flex flex-col gap-3 ">
               <div className="flex">
-                <h3 className="flex-grow">Logo</h3>
+                <h3 className="flex-grow label-text">Logo</h3>
                 {schema.images && schema.images.length > 0 && (
                   <button
                     className="btn btn-xs btn-error rounded-xl"

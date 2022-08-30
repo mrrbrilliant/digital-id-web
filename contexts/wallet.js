@@ -65,7 +65,7 @@ export default function WalletProvider({ children }) {
     try {
       const substrateProvider = process.env.NEXT_PUBLIC_WSS_ADDRESS || "";
       const provider = new WsProvider(substrateProvider);
-      // await cryptoWaitReady();
+
       const api = new ApiPromise(options({ provider }));
       await api.isReadyOrError;
       const chainId = parseInt(api.consts.evmAccounts.chainId.toString());

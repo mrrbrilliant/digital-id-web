@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 import { MdOutlineLightMode, MdOutlineNightlight, MdOutlineQrCodeScanner } from "react-icons/md";
-import { VscSignOut, VscSettingsGear, VscPerson, VscScreenFull } from "react-icons/vsc";
+import { VscSignOut, VscSettingsGear, VscPerson, VscFile } from "react-icons/vsc";
 
 import { ProfileContext } from "../contexts/profile";
 import { WalletContext } from "../contexts/wallet";
@@ -35,7 +35,7 @@ const Navbar = ({ toggleQr }) => {
 
   const router = useRouter();
   return (
-    <div className="h-20 navbar bg-base-100 md:px-6 lg:px-[10vw] xl:px-[15vw]">
+    <div className="w-screen h-20 navbar bg-base-100 md:px-6 lg:px-[10vw] xl:px-[15vw]">
       <div className="dropdown">
         <label tabIndex={0} className="btn btn-ghost lg:hidden">
           <svg
@@ -70,11 +70,11 @@ const Navbar = ({ toggleQr }) => {
           ))}
         </ul>
       </div>
-      <div className="flex-1">
+      <div className="flex-grow">
         <Link href="/">
-          <a className="btn btn-ghost normal-case text-xl ">Digital ID</a>
+          <a className="min-w-fit btn btn-ghost normal-case text-xl ">Digital ID</a>
         </Link>
-        <div className="flex space-x-4 pl-16 lg:visible invisible">
+        <div className=" space-x-4 pl-16 lg:flex hidden">
           {navigation.map((item) => (
             <Link key={item.name} href={item.href}>
               <a
@@ -93,7 +93,7 @@ const Navbar = ({ toggleQr }) => {
       </div>
       <div className="flex flex-row gap-4 place-items-center">
         <button className="btn btn-circle bg-opacity-50 border-none" onClick={toggleQr}>
-          <MdOutlineQrCodeScanner size={24} />
+          <MdOutlineQrCodeScanner size={18} />
         </button>
 
         <label className="btn btn-circle swap swap-rotate bg-opacity-50 border-none">
@@ -102,7 +102,7 @@ const Navbar = ({ toggleQr }) => {
           <MdOutlineLightMode className="swap-off fill-current w-6 h-6" />
         </label>
 
-        <div className="dropdown dropdown-end">
+        <div className=" dropdown dropdown-end">
           <label tabIndex={0} className="btn btn-block btn-circle avatar border-none">
             <div className="h-full rounded-full">
               <img src={profile ? profile.avatar : "https://api.lorem.space/image/face?hash=33791"} alt="" />
@@ -110,26 +110,26 @@ const Navbar = ({ toggleQr }) => {
           </label>
           <ul
             tabIndex={0}
-            className=" mt-3 dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 backdrop-blur-md bg-opacity-90 flex space-y-2"
+            className=" mt-3 dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-64 backdrop-blur-md bg-opacity-90 flex space-y-2"
           >
             <li>
               <a className="flex gap-4">
-                <VscPerson size={24} /> Profile
+                <VscPerson size={18} /> Profile
               </a>
             </li>
             <li>
               <a className="flex gap-4">
-                <VscSettingsGear size={24} /> Settings
+                <VscSettingsGear size={18} /> Settings
               </a>
             </li>
             <li>
               <button className="flex gap-4" onClick={exportWallet}>
-                <VscSignOut size={24} /> Export JSON Wallet
+                <VscFile size={18} /> Export Wallet
               </button>
             </li>
             <li>
               <button className="flex gap-4" onClick={forgetWallet}>
-                <VscSignOut size={24} /> Logout
+                <VscSignOut size={18} /> Logout
               </button>
             </li>
           </ul>
