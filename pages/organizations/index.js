@@ -226,7 +226,7 @@ const Organizations = () => {
         <div
           className="grid gap-6 mt-4 p-4 md:p-0"
           style={{
-            gridTemplateColumns: "repeat(auto-fill, minmax(300, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
           }}
         >
           {organizations &&
@@ -244,7 +244,7 @@ const Organizations = () => {
       <div
         className="grid gap-6 mt-4 p-4 md:p-0"
         style={{
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
         }}
       >
         {organizations &&

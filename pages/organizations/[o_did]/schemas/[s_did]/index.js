@@ -151,7 +151,7 @@ export default function CredentialsOfSchema() {
           </div>
         </Modal>
       )}
-      <div className="flex place-items-center">
+      <div className="flex place-items-center p-6 md:p-0">
         <h1 className="text-3xl font-bold my-6">{schema?.details.title}</h1>
         <div className="flex-grow flex place-content-end">
           {isOwner && (
@@ -161,7 +161,7 @@ export default function CredentialsOfSchema() {
           )}
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-6 p-6 md:p-0">
         {credentials &&
           credentials.length > 0 &&
           credentials.map((credential) => (
@@ -211,9 +211,9 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
   }, [contract, verified, verification]);
 
   return (
-    <div className=" rounded-2xl px-6 py-4  border-gray-100 bg-base-100 relative overflow-hidden">
+    <div className=" rounded-2xl p-6  border-gray-100 bg-base-100 relative overflow-hidden">
       <div className="flex flex-col ">
-        <div className="flex flex-row place-content-center gap-4">
+        <div className="flex-row place-content-center gap-4 hidden md:flex">
           <div className="form-control">
             <label className="label pl-0">
               <span className="label-text font-bold">DID</span>
@@ -285,6 +285,54 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
               </>
             )}
           </div>
+        </div>
+      </div>
+      <div className="md:hidden flex flex-col gap-4">
+        <div className="flex flex-row place-content-between">
+          <p className="font-bold text-sm">DID: </p>
+          <p className="text-sm font-mono">{credential.did}</p>
+        </div>
+        <div className="flex flex-row place-content-between">
+          <p className="font-bold text-sm">Status: </p>
+          {typeof verified === "undefined" && <p className="font-bold text-xs text-success">Checking</p>}
+          {typeof verified !== "undefined" && verified && <p className="font-bold text-xs text-success">Verified</p>}
+          {typeof verified !== "undefined" && !verified && <p className="font-bold text-xs text-error">Unverified</p>}
+        </div>
+        <div className="flex flex-row place-content-between">
+          <p className="font-bold text-sm">Address: </p>
+          <p className="text-sm font-mono">{credential.owner}</p>
+        </div>
+        <div className="flex flex-row place-content-between ">
+          <p className="font-bold text-sm">CID: </p>
+          <p className="text-sm font-mono">{credential.cid}</p>
+        </div>
+        <div className="w-full flex flex-row place-items-stretch place-content-stretch gap-6">
+          <button className="py-2 px-4 rounded-2xl btn btn-sm btn-primary flex-grow">Detail</button>
+          {isOwner && (
+            <>
+              {!verified && (
+                <button
+                  className="py-2 px-4 btn btn-warning btn-sm rounded-2xl flex-grow"
+                  onClick={() => {
+                    handleRevoke(1);
+                  }}
+                >
+                  Verify
+                </button>
+              )}
+              {isRevokable && (
+                <button
+                  className="py-2 px-4 flex-grow btn btn-sm btn-warning rounded-2xl"
+                  onClick={() => {
+                    verified && handleRevoke(0);
+                    !verified && handleRevoke(1);
+                  }}
+                >
+                  {verified ? "Revoke" : "Unrevoke"}
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

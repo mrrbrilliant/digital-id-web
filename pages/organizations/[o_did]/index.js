@@ -226,34 +226,26 @@ export default function Org() {
           )}
         </div>
 
-        <div className="dropdown dropdown-end block md:hidden">
-          <label tabIndex={0} className="btn btn-sm flex place-content-center place-items-start btn-circle mr-4">
-            <VscKebabVertical size={24} />
+        <div className="dropdown dropdown-end block md:hidden mr-4">
+          <label tabIndex={0} className="btn btn-primary bg-opacity-30 btn-sm btn-circle ">
+            <VscEllipsis size={24} />
           </label>
-          <ul tabIndex={0} className="dropdown-content menu p-0 shadow bg-base-200 rounded-box w-52">
-            <li>
-              <label
-                className="btn btn-sm btn-warning rounded-xl modal-button ml-2"
-                onClick={toggleTransferOrganization}
-              >
-                Transfer Organzation
-              </label>
+          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-[50vw] md:w-64 ">
+            <li
+              className="p-4 hover:bg-base-100 hover:bg-opacity-80 rounded-xl cursor-pointer"
+              onClick={toggleTransferOrganization}
+            >
+              Transfer Organzation
             </li>
-            <li>
-              <label
-                className="btn btn-error btn-sm rounded-xl modal-button ml-2"
-                onClick={toggleBurnOrganizationModal}
-              >
-                Burn Organzation
-              </label>
+            <li
+              className="p-4 hover:bg-base-100 hover:bg-opacity-80 rounded-xl cursor-pointer"
+              onClick={toggleBurnOrganizationModal}
+            >
+              Burn Organzation
             </li>
-            <li>
-              <Link href={`/organizations/${o_did}/mint_schema`}>
-                <label className="btn btn-info btn-sm rounded-xl modal-button ml-2" htmlFor="my-modal-3">
-                  Mint Schema
-                </label>
-              </Link>
-            </li>
+            <Link href={`/organizations/${o_did}/mint_schema`}>
+              <li className="p-4 hover:bg-base-100 hover:bg-opacity-80 rounded-xl cursor-pointer">Mint Schema</li>
+            </Link>
           </ul>
         </div>
       </div>
@@ -263,7 +255,7 @@ export default function Org() {
       <div
         className="grid gap-6 mt-4 p-4 md:p-0"
         style={{
-          gridTemplateColumns: "repeat(auto-fill, minmax(280, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
         }}
       >
         {schemas &&
@@ -292,8 +284,8 @@ const TypeCard = ({ type, isOwner, orgId, setToBurnSchema, toggleBurnSchemaModal
   }
 
   return (
-    <div className="w-auto rounded-xl p-3  border-gray-100 bg-base-100 relative">
-      <div className="flex space-x-4 p-4">
+    <div className="w-auto rounded-xl p-6  border-gray-100 bg-base-100 relative">
+      <div className="flex md:gap-6">
         <div className="w-40 h-40 text-center hidden md:block">
           <Image
             className="w-40 h-40 mx-auto object-contain"
@@ -305,7 +297,7 @@ const TypeCard = ({ type, isOwner, orgId, setToBurnSchema, toggleBurnSchemaModal
             objectFit="contain"
           />
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 place-content-start place-items-start">
           <h4 className="text-xl font-semibold">{type.details.title}</h4>
           <p className="flex-grow">{type.details.description}</p>
           <div className="flex gap-4 place-items-end">
