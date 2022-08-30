@@ -88,9 +88,9 @@ export default function Home() {
   }, [network, evmAddress, checkedBalance, setCheckedBalance, fetchBalance]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-4 md:p-0">
       <div className="w-full stats bg-base-100">
-        <div className="stat">
+        <div className="stat p-6 overflow-x-hidden">
           <div className="stat-title">Current balance</div>
           <div className="stat-value">
             <div className="flex mb-4">
@@ -110,17 +110,17 @@ export default function Home() {
           </div>
           <div className="stat-actions flex gap-6">
             <a
-              className="btn btn-sm btn-success flex-grow"
+              className="btn btn-sm btn-success md:flex-grow"
               href="https://faucet.selendra.org/testnet"
               rel="noreferrer"
               target="_blank"
             >
               Deposit
             </a>
-            <button className="btn btn-sm btn-primary flex-grow" onClick={toggleTransfer}>
+            <button className="btn btn-sm btn-primary md:flex-grow" onClick={toggleTransfer}>
               Transfer
             </button>
-            <button className="btn btn-sm btn-secondary flex-grow" onClick={toggleReceive}>
+            <button className="btn btn-sm btn-secondary md:flex-grow" onClick={toggleReceive}>
               Receive
             </button>
           </div>

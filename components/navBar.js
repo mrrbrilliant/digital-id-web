@@ -35,7 +35,7 @@ const Navbar = ({ toggleQr }) => {
 
   const router = useRouter();
   return (
-    <div className="w-screen h-20 navbar bg-base-100 md:px-6 lg:px-[10vw] xl:px-[15vw]">
+    <div className="w-full h-20 navbar bg-base-100 md:px-6 lg:px-[10vw] xl:px-[15vw]">
       <div className="dropdown">
         <label tabIndex={0} className="btn btn-ghost lg:hidden">
           <svg
@@ -50,7 +50,7 @@ const Navbar = ({ toggleQr }) => {
         </label>
         <ul
           tabIndex={0}
-          className="menu dropdown-content mt-5 p-2 shadow bg-base-200 rounded-box w-[30vw] bg-opacity-60 backdrop-blur-lg"
+          className="menu dropdown-content mt-5 p-2 shadow bg-base-200 rounded-box w-[50vw] md:w-[30vw] bg-opacity-60 backdrop-blur-lg"
         >
           {navigation.map((item) => (
             <li key={item.name}>
@@ -74,7 +74,7 @@ const Navbar = ({ toggleQr }) => {
         <Link href="/">
           <a className="min-w-fit btn btn-ghost normal-case text-xl ">Digital ID</a>
         </Link>
-        <div className=" space-x-4 pl-16 lg:flex hidden">
+        <div className="space-x-4 pl-16 lg:flex hidden">
           {navigation.map((item) => (
             <Link key={item.name} href={item.href}>
               <a
@@ -91,7 +91,7 @@ const Navbar = ({ toggleQr }) => {
           ))}
         </div>
       </div>
-      <div className="flex flex-row gap-4 place-items-center">
+      <div className="flex flex-row gap-4 place-items-center pr-6 md:pr-0">
         <button className="btn btn-circle bg-opacity-50 border-none" onClick={toggleQr}>
           <MdOutlineQrCodeScanner size={18} />
         </button>

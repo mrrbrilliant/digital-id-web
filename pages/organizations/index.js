@@ -215,17 +215,20 @@ const Organizations = () => {
 
       {/* ===================owner Organization======================= */}
       <div className="flex flex-col gap-6">
-        <div className="flex place-content-center place-items-center">
+        <div className="flex place-content-center place-items-center py-6 px-4 md:px-0">
           <h3 className="font-bold flex-grow">My Organizations</h3>
           <div className="flex justify-end  rounded-xl space-x-4">
-            {/* <BtnWithAuth callback={toggleCreateOpenModal} className="">
-            </BtnWithAuth> */}
-            <label className="btn btn-primary rounded-xl modal-button" onClick={toggleCreateOpenModal}>
+            <label className="btn btn-sm btn-primary rounded-xl modal-button" onClick={toggleCreateOpenModal}>
               Create Organizations
             </label>
           </div>
         </div>
-        <div className="grid grid-cols-4 gap-7">
+        <div
+          className="grid gap-6 mt-4 p-4 md:p-0"
+          style={{
+            gridTemplateColumns: "repeat(auto-fill, minmax(300, 1fr))",
+          }}
+        >
           {organizations &&
             ownOrgs.map((org, index) => {
               return <OrganizationCard key={org.did} organization={org} />;
@@ -235,10 +238,15 @@ const Organizations = () => {
 
       {/* =========================>other organization======================= */}
 
-      <div className="py-6">
+      <div className="py-6 px-4 md:px-0">
         <h3 className="font-bold">Other Organizations</h3>
       </div>
-      <div className="grid grid-cols-4 gap-7 mt-4">
+      <div
+        className="grid gap-6 mt-4 p-4 md:p-0"
+        style={{
+          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+        }}
+      >
         {organizations &&
           otherOrgs.map((org) => {
             return <OrganizationCard key={org.did} organization={org} />;

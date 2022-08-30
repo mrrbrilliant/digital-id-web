@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
   const { address } = req.query;
   const _dids = await contract.getAssetsOf(address);
-  const dids = _dids.map((bn) => bn.toString());
+  const dids = _dids.map((bn) => bn.toNumber());
 
   const details = await Promise.all(
     dids.map(async (did) => {

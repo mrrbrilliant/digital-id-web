@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Modal from "../../../components/modal";
 import { VscEllipsis, VscTrash } from "react-icons/vsc";
-import { VscVerified, VscUnverified } from "react-icons/vsc";
+import { VscVerified, VscUnverified, VscKebabVertical } from "react-icons/vsc";
 // import BtnWithAuth from "../../hooks/useAuthCallback";
 
 import { toast } from "react-toastify";
@@ -198,30 +198,74 @@ export default function Org() {
           </div>
         </Modal>
       )}
-      <div className="flex justify-between  rounded-xl">
-        <h1 className="font-bold text-xl p-2">{organization.details.name}</h1>
+      <div className="flex justify-between rounded-xl">
+        <h1 className="font-bold text-xl px-4 md:px-0">{organization.details.name}</h1>
 
-        {isOwner && (
-          <div>
-            <label className="btn btn-sm btn-warning rounded-xl modal-button ml-2" onClick={toggleTransferOrganization}>
-              Transfer Organzation
-            </label>
-            <label className="btn btn-error btn-sm rounded-xl modal-button ml-2" onClick={toggleBurnOrganizationModal}>
-              Burn Organzation
-            </label>
-
-            <Link href={`/organizations/${o_did}/mint_schema`}>
-              <label className="btn btn-info btn-sm rounded-xl modal-button ml-2" htmlFor="my-modal-3">
-                Mint Schema
+        <div className="hidden md:block">
+          {isOwner && (
+            <div>
+              <label
+                className="btn btn-sm btn-warning rounded-xl modal-button ml-2"
+                onClick={toggleTransferOrganization}
+              >
+                Transfer Organzation
               </label>
-            </Link>
-          </div>
-        )}
+              <label
+                className="btn btn-error btn-sm rounded-xl modal-button ml-2"
+                onClick={toggleBurnOrganizationModal}
+              >
+                Burn Organzation
+              </label>
+
+              <Link href={`/organizations/${o_did}/mint_schema`}>
+                <label className="btn btn-info btn-sm rounded-xl modal-button ml-2" htmlFor="my-modal-3">
+                  Mint Schema
+                </label>
+              </Link>
+            </div>
+          )}
+        </div>
+
+        <div className="dropdown dropdown-end block md:hidden">
+          <label tabIndex={0} className="btn btn-sm flex place-content-center place-items-start btn-circle mr-4">
+            <VscKebabVertical size={24} />
+          </label>
+          <ul tabIndex={0} className="dropdown-content menu p-0 shadow bg-base-200 rounded-box w-52">
+            <li>
+              <label
+                className="btn btn-sm btn-warning rounded-xl modal-button ml-2"
+                onClick={toggleTransferOrganization}
+              >
+                Transfer Organzation
+              </label>
+            </li>
+            <li>
+              <label
+                className="btn btn-error btn-sm rounded-xl modal-button ml-2"
+                onClick={toggleBurnOrganizationModal}
+              >
+                Burn Organzation
+              </label>
+            </li>
+            <li>
+              <Link href={`/organizations/${o_did}/mint_schema`}>
+                <label className="btn btn-info btn-sm rounded-xl modal-button ml-2" htmlFor="my-modal-3">
+                  Mint Schema
+                </label>
+              </Link>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <br />
 
-      <div className="grid grid-cols-2 mt-3 gap-7">
+      <div
+        className="grid gap-6 mt-4 p-4 md:p-0"
+        style={{
+          gridTemplateColumns: "repeat(auto-fill, minmax(280, 1fr))",
+        }}
+      >
         {schemas &&
           schemas.map((schema) => {
             return (
@@ -248,22 +292,9 @@ const TypeCard = ({ type, isOwner, orgId, setToBurnSchema, toggleBurnSchemaModal
   }
 
   return (
-    <div className=" rounded-xl p-3  border-gray-100 bg-base-100 relative">
+    <div className="w-auto rounded-xl p-3  border-gray-100 bg-base-100 relative">
       <div className="flex space-x-4 p-4">
-        <div className="w-40 h-40 text-center">
-          {/* <Image
-            className="w-40 h-40 mx-auto object-contain"
-            src={
-              type?.images?.length > 0
-                ? `${type?.images[0]}`
-                : "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MoEYS_%28Cambodia%29.svg/1200px-MoEYS_%28Cambodia%29.svg.png"
-            }
-            alt=""
-            width={160}
-            height={160}
-            layout="responsive"
-            objectFit="contain"
-          /> */}
+        <div className="w-40 h-40 text-center hidden md:block">
           <Image
             className="w-40 h-40 mx-auto object-contain"
             src={type.details.images[0]}
@@ -274,10 +305,10 @@ const TypeCard = ({ type, isOwner, orgId, setToBurnSchema, toggleBurnSchemaModal
             objectFit="contain"
           />
         </div>
-        <div className="relative">
+        <div className="flex flex-col gap-4">
           <h4 className="text-xl font-semibold">{type.details.title}</h4>
-          <p className="text-lg mt-2">{type.details.description}</p>
-          <div className="absolute bottom-0 flex gap-4">
+          <p className="flex-grow">{type.details.description}</p>
+          <div className="flex gap-4 place-items-end">
             {isOwner && (
               <Link href={`/organizations/${orgId}/schemas/${type.did}/mint_credential`}>
                 <button className="btn py-2 px-4 text-white leading-none rounded-xl font-bold  bg-primarypink hover:bg-opacity-75  uppercase">
@@ -320,122 +351,122 @@ const TypeCard = ({ type, isOwner, orgId, setToBurnSchema, toggleBurnSchemaModal
   );
 };
 
-const DocumentCard = ({ res, setIsCheckUnverifiedDocs }) => {
-  const { organizations, isOrgLoading, credentialTypes, createDocument } = React.useContext(DataContext);
-  const { evmWallet } = useContext(WalletContext);
+// const DocumentCard = ({ res, setIsCheckUnverifiedDocs }) => {
+//   const { organizations, isOrgLoading, credentialTypes, createDocument } = React.useContext(DataContext);
+//   const { evmWallet } = useContext(WalletContext);
 
-  const [typeDetail, setTypeDetail] = useState();
-  const [orgDetail, setOrgDetail] = useState();
-  const [docDetail, setDocDetail] = useState();
-  const [cType, setCType] = useState();
+//   const [typeDetail, setTypeDetail] = useState();
+//   const [orgDetail, setOrgDetail] = useState();
+//   const [docDetail, setDocDetail] = useState();
+//   const [cType, setCType] = useState();
 
-  function toNumber(number) {
-    const toUnit = ethers.utils.formatEther(number).toString();
-    const roundedCount = Math.round(parseFloat(toUnit) * 10 ** 18);
-    return roundedCount;
-  }
+//   function toNumber(number) {
+//     const toUnit = ethers.utils.formatEther(number).toString();
+//     const roundedCount = Math.round(parseFloat(toUnit) * 10 ** 18);
+//     return roundedCount;
+//   }
 
-  async function getCType() {
-    const id = toNumber(res.ctypeId);
-    const ct = credentialTypes.filter((c) => c.id === id)[0];
+//   async function getCType() {
+//     const id = toNumber(res.ctypeId);
+//     const ct = credentialTypes.filter((c) => c.id === id)[0];
 
-    const orgId = toNumber(ct.orgId);
+//     const orgId = toNumber(ct.orgId);
 
-    const ctDetail = await fetch(ct.propertiesURI)
-      .then((res) => res.json())
-      .then((data) => data)
-      .catch((error) => console.log(error));
+//     const ctDetail = await fetch(ct.propertiesURI)
+//       .then((res) => res.json())
+//       .then((data) => data)
+//       .catch((error) => console.log(error));
 
-    const doc = await fetch(res.propertyURI)
-      .then((res) => res.json())
-      .then((data) => data)
-      .catch((error) => console.log(error));
+//     const doc = await fetch(res.propertyURI)
+//       .then((res) => res.json())
+//       .then((data) => data)
+//       .catch((error) => console.log(error));
 
-    const org = organizations.filter((o) => toNumber(o.id) === orgId)[0];
+//     const org = organizations.filter((o) => toNumber(o.id) === orgId)[0];
 
-    setTypeDetail(ctDetail);
-    setOrgDetail(org);
-    setDocDetail(doc);
-    setCType(ct);
-  }
+//     setTypeDetail(ctDetail);
+//     setOrgDetail(org);
+//     setDocDetail(doc);
+//     setCType(ct);
+//   }
 
-  const handleCreateDoc = async () => {
-    const { ctypeId, to, name, propertyURI, propertyHash, _id } = res;
-    createDocument({ ctypeId, to, name, propertyURI, propertyHash });
-    deletePendingRequest(_id);
-    setIsCheckUnverifiedDocs(true);
-  };
+//   const handleCreateDoc = async () => {
+//     const { ctypeId, to, name, propertyURI, propertyHash, _id } = res;
+//     createDocument({ ctypeId, to, name, propertyURI, propertyHash });
+//     deletePendingRequest(_id);
+//     setIsCheckUnverifiedDocs(true);
+//   };
 
-  const deletePendingRequest = async (id) => {
-    const signer = new ethers.Wallet(evmWallet.evmPrivateKey);
-    const signature = await signer.signMessage("decentralized_identity");
+//   const deletePendingRequest = async (id) => {
+//     const signer = new ethers.Wallet(evmWallet.evmPrivateKey);
+//     const signature = await signer.signMessage("decentralized_identity");
 
-    var myHeaders = new Headers();
-    myHeaders.append("Authorization", signature);
-    myHeaders.append("Content-Type", "application/json");
+//     var myHeaders = new Headers();
+//     myHeaders.append("Authorization", signature);
+//     myHeaders.append("Content-Type", "application/json");
 
-    const raw = JSON.stringify({
-      id: id,
-    });
+//     const raw = JSON.stringify({
+//       id: id,
+//     });
 
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
+//     const requestOptions = {
+//       method: "POST",
+//       headers: myHeaders,
+//       body: raw,
+//       redirect: "follow",
+//     };
 
-    fetch("https://attestation.koompi.org/claims/delete", requestOptions)
-      .then((response) => response.text())
-      .then((result) => {
-        setIsCheckUnverifiedDocs(true);
-      })
-      .catch((error) => console.log("error", error));
-  };
+//     fetch("https://attestation.koompi.org/claims/delete", requestOptions)
+//       .then((response) => response.text())
+//       .then((result) => {
+//         setIsCheckUnverifiedDocs(true);
+//       })
+//       .catch((error) => console.log("error", error));
+//   };
 
-  useEffect(() => {
-    getCType();
-  }, []);
+//   useEffect(() => {
+//     getCType();
+//   }, []);
 
-  useEffect(() => {
-    console.log(res);
-  }, [res]);
+//   useEffect(() => {
+//     console.log(res);
+//   }, [res]);
 
-  return (
-    <div className=" rounded-lg p-6  border-gray-100 bg-base-100 relative overflow-hidden">
-      <div className="flex flex-col place-items-start place-content-start">
-        {typeDetail && typeDetail.images && (
-          <div className="w-full  h-max flex place-content-center place-items-center mb-4">
-            <img className="w-auto max-h-64" src={typeDetail.images[0]} alt="" />
-          </div>
-        )}
-        <div className="w-full flex flex-col flex-grow space-y-2">
-          <h4 className="text-2xl font-semibold">{res.name}</h4>
-          <Badge status={res.status} />
-          <div className="font-normal text-sm">BY: {orgDetail?.name}</div>
-          <textarea className="w-full mt-2 focus:outline-none resize-none" value={res.propertyHash} readOnly />
-          <div className="flex space-x-4">
-            <button className="p-2 flex-grow text-white leading-none rounded font-bold mt-2 btn btn-info btn-sm hover:bg-opacity-75 text-xs uppercase">
-              Detail
-            </button>
-            <button
-              className="p-2 text-white leading-none rounded font-bold mt-2 btn btn-success btn-sm hover:bg-opacity-75 text-xs uppercase"
-              onClick={handleCreateDoc}
-            >
-              Approve
-            </button>
-            <button
-              className="p-2 text-white leading-none rounded font-bold mt-2 btn btn-error btn-sm hover:bg-opacity-75 text-xs uppercase"
-              onClick={(e) => deletePendingRequest(res._id)}
-            >
-              Reject
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className=" rounded-lg p-6  border-gray-100 bg-base-100 relative overflow-hidden">
+//       <div className="flex flex-col place-items-start place-content-start">
+//         {typeDetail && typeDetail.images && (
+//           <div className="w-full  h-max flex place-content-center place-items-center mb-4">
+//             <img className="w-auto max-h-64" src={typeDetail.images[0]} alt="" />
+//           </div>
+//         )}
+//         <div className="w-full flex flex-col flex-grow space-y-2">
+//           <h4 className="text-2xl font-semibold">{res.name}</h4>
+//           <Badge status={res.status} />
+//           <div className="font-normal text-sm">BY: {orgDetail?.name}</div>
+//           <textarea className="w-full mt-2 focus:outline-none resize-none" value={res.propertyHash} readOnly />
+//           <div className="flex space-x-4">
+//             <button className="p-2 flex-grow text-white leading-none rounded font-bold mt-2 btn btn-info btn-sm hover:bg-opacity-75 text-xs uppercase">
+//               Detail
+//             </button>
+//             <button
+//               className="p-2 text-white leading-none rounded font-bold mt-2 btn btn-success btn-sm hover:bg-opacity-75 text-xs uppercase"
+//               onClick={handleCreateDoc}
+//             >
+//               Approve
+//             </button>
+//             <button
+//               className="p-2 text-white leading-none rounded font-bold mt-2 btn btn-error btn-sm hover:bg-opacity-75 text-xs uppercase"
+//               onClick={(e) => deletePendingRequest(res._id)}
+//             >
+//               Reject
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 function Badge({ status }) {
   if (status) {
