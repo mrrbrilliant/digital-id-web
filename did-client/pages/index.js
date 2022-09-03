@@ -310,7 +310,7 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
           />
 
           <div className="grid grid-cols-3 text-xs">
-            {credential &&
+            {/* {credential &&
               Object.entries(credential.details).map(
                 (e, i) =>
                   i < 3 && (
@@ -321,7 +321,7 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
                       )}
                     </React.Fragment>
                   )
-              )}
+              )} */}
           </div>
 
           {openTransfer && (

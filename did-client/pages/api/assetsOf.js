@@ -28,11 +28,14 @@ export default async function handler(req, res) {
       const state = meta["state"];
       const ctype = meta["ctype"];
       const parent = meta["parent"].toNumber();
-
+      if (details === null) {
+        return null;
+      }
       return { did, cid, owner, ctype, state, parent, details };
     })
   ).then((data) => data);
-  const data = _.groupBy(details, (detail) => {
+  const safe = details.filter((d) => d !== null);
+  const data = _.groupBy(safe, (detail) => {
     switch (detail.ctype) {
       case 0:
         return "organizations";
