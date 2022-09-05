@@ -31,6 +31,11 @@ export default async function handler(req, res) {
       if (details === null) {
         return null;
       }
+
+      if (ctype === 2) {
+        const isVerified = await contract.verify(did);
+        return { did, cid, owner, ctype, state, parent, isVerified, details };
+      }
       return { did, cid, owner, ctype, state, parent, details };
     })
   ).then((data) => data);

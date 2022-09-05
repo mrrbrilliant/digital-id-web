@@ -35,8 +35,13 @@ export default async function handler(req, res) {
       const state = meta["state"];
       const ctype = meta["ctype"];
       const parent = meta["parent"].toNumber();
+
       if (details === null) {
         return null;
+      }
+      if (ctype === 2) {
+        const isVerified = await contract.verify(did);
+        return { did, cid, owner, ctype, state, parent, isVerified, details };
       }
       return { did, cid, owner, ctype, state, parent, details };
     })

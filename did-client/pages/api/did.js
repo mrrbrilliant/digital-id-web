@@ -26,6 +26,11 @@ export default async function handler(req, res) {
   try {
     const details = await axios.get(ipfs_address(cid)).then((res) => res.data);
     const data = { did, cid, owner, ctype, state, parent, details };
+    if (ctype === 2) {
+      const isVerified = await contract.verify(did);
+      data["isVerified"] = isVerified;
+    }
+
     await provider.disconnect();
     res.status(200).json(data);
   } catch (error) {
