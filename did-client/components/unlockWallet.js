@@ -29,44 +29,12 @@ export default function UnlockWallet() {
       });
   }
 
-  // ✅ Promise check
-  // function isPromise(p) {
-  //   if (typeof p === "object" && typeof p.then === "function") {
-  //     return true;
-  //   }
-
-  //   return false;
-  // }
-
-  // ✅ Check if return value is promise
-  // const returnsPromise = useCallback((f) => {
-  //   if (f.constructor.name === "AsyncFunction" || (typeof f === "function" && isPromise(f()))) {
-  //     console.log("✅ Function returns promise");
-  //     return true;
-  //   }
-
-  //   console.log("⛔️ Function does NOT return promise");
-  //   return false;
-  // }, []);
-
-  // useEffect(() => {
-  //   if (cb) {
-  //     if (unlocked && contractRW) {
-  //       if (returnsPromise(cb)) {
-  //         cb().then(() => {});
-  //         return;
-  //       }
-  //       cb();
-  //     }
-  //   }
-  // }, [unlocked, evmWallet, contractRW, cb, returnsPromise]);
-
   if (show) {
     return (
-      <div className="w-screen min-h-screen fixed top-0 left-0 z-50 flex place-items-center place-content-center bg-base-300 bg-opacity-60 backdrop-blur-md">
+      <div className="w-screen min-h-screen text-base-content fixed top-0 left-0 z-50 flex place-items-center place-content-center bg-base-300 bg-opacity-60 backdrop-blur-md">
         <div className="card w-96 bg-base-100 shadow-xl p-6">
           <div className="card-body p-0">
-            <a className="label font-bold">UNLOCK WALLET</a>
+            <a className="label font-bold text-base-content">UNLOCK WALLET</a>
             <form className="form-control w-full" onSubmit={handleSubmit}>
               <div>
                 <label className="label">

@@ -1,10 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { ethers } from "ethers";
 import ZSchema from "z-schema";
 
-import { v4 as uid } from "uuid";
 import Papa from "papaparse";
 
 // Contexts
@@ -100,6 +98,7 @@ export default function MintCredential() {
         throw error;
       });
   }
+
   const handleMintCredential = async () => {
     const toaster = toast.loading("Validating credential");
     const _validate = validate();
@@ -121,7 +120,6 @@ export default function MintCredential() {
           await mint.wait();
           toast.update(toaster, { render: "Minting credential.", isLoading: false, type: "success", autoClose: 3000 });
           setTimeout(() => {
-            // window.location.replace(`/organizations/${orgId}/schemas/${schemaId}`);
             fetchData().then(() => {
               router.push(`/organizations/${orgId}/schemas/${schemaId}`);
             });
@@ -207,11 +205,6 @@ export default function MintCredential() {
     if (isDataReady && schema && !formData) initiateFormData();
   }, [isDataReady, schema, formData, initiateFormData]);
 
-  // Logs
-  // useEffect(() => {
-  //   console.log(formData);
-  // }, [formData]);
-
   function handleSelectFiles(e) {
     const files = e.target.files;
     let _files = [];
@@ -227,12 +220,6 @@ export default function MintCredential() {
     const lines = Papa.parse(_csvContent);
     return lines;
   }
-
-  // function toNumber(number) {
-  //   const toUnit = ethers.utils.formatEther(number).toString();
-  //   const roundedCount = Math.round(parseFloat(toUnit) * 10 ** 18);
-  //   return roundedCount;
-  // }
 
   function uploadWithParams(data) {
     const str = JSON.stringify(data);
@@ -256,73 +243,6 @@ export default function MintCredential() {
         throw error;
       });
   }
-
-  // function handleDocChange(e) {
-  //   const { name, value, type, checked } = e.target;
-  //   if (type === "checkbox") {
-  //     setDocument({ ...document, [name]: checked });
-  //     return;
-  //   }
-  //   if (type === "number") {
-  //     setDocument({ ...document, [name]: parseInt(value) || 0 });
-  //     return;
-  //   }
-  //   setDocument({ ...document, [name]: value });
-  // }
-
-  // const submitDoc = async (doc) => {
-  //   const signer = new ethers.Wallet(evmWallet.evmPrivateKey);
-  //   const signature = await signer.signMessage("decentralized_identity");
-  //   console.log(signature);
-
-  //   let myHeaders = new Headers();
-  //   myHeaders.append("Authorization", signature);
-  //   myHeaders.append("Content-Type", "application/json");
-
-  //   let raw = JSON.stringify(doc);
-
-  //   const requestOptions = {
-  //     method: "POST",
-  //     headers: myHeaders,
-  //     body: raw,
-  //     redirect: "follow",
-  //   };
-
-  //   return fetch("https://attestation.koompi.org/claims/create", requestOptions)
-  //     .then((response) => response.text())
-  //     .then((result) => {
-  //       if (document.ctypeId == 0) {
-  //         window.location.replace("/");
-  //       }
-  //       router.back();
-  //     })
-  //     .catch((error) => error);
-  // };
-
-  // const handleSubmitDoc = async () => {
-  //   const _validate = validate();
-
-  //   if (!_validate) {
-  //     console.log("Not passed validation");
-  //     return;
-  //   }
-
-  //   try {
-  //     const data = await upload();
-  //     if (data) {
-  //       const _data = JSON.parse(data[0]);
-  //       const propertyURI = `https://gateway.kumandra.org/files/${_data.Hash}`;
-  //       const propertyHash = ethers.utils.sha256(ethers.utils.toUtf8Bytes(propertyURI));
-  //       const toCreateData = { ...document, propertyURI, propertyHash, attester: orgOwner };
-  //       const submitted = await submitDoc({ ...toCreateData });
-  //       if (submitted) {
-  //       }
-  //       router.back();
-  //     }
-  //   } catch (error) {
-  //     return;
-  //   }
-  // };
 
   async function bulkCreate(data) {
     const valids = [];
@@ -431,90 +351,6 @@ export default function MintCredential() {
     }
   }
 
-  // useEffect(() => {
-  //   if (!isCTLoading) {
-  //     if (isSearching && credentialTypes) {
-  //       const _data = credentialTypes.filter((t) => {
-  //         const _orgId = toNumber(t.orgId);
-  //         const _type = toNumber(t.CTypeId);
-  //         const __type = parseInt(type);
-  //         const __orgId = parseInt(orgId);
-  //         return _type === __type && _orgId === __orgId;
-  //       });
-  //       setForm(_data[0]);
-  //       setIsSearching(false);
-  //     }
-  //     console.log("isCTLoading", isCTLoading);
-  //   }
-  // }, [isSearching, setIsSearching, isCTLoading, credentialTypes, router, orgId, type]);
-
-  // useEffect(() => {
-  //   if (!isSearching && form) {
-  //     if (form.propertiesURI && !initiated) {
-  //       initiate(form.propertiesURI);
-  //       setInitiated(true);
-  //     }
-  //   }
-  // }, [isSearching, form, setInitiated, initiated]);
-
-  // useEffect(() => {
-  //   if (formUi) {
-  //     if (formUi.title && document.name === "") {
-  //       setDocument({ ...document, name: formUi.title });
-  //     }
-  //   }
-  // }, [formUi, setDocument, document]);
-
-  // useEffect(() => {
-  //   const { type } = router.query;
-  //   if (type) {
-  //     if (document.ctypeId === -1) {
-  //       setDocument({ ...document, ctypeId: parseInt(type) });
-  //     }
-  //   }
-  // }, [router, setDocument, document]);
-
-  // // get org info of current route
-  // useEffect(() => {
-  //   if (!isOrgLoading && organizations && organizations.length > 0 && isChecking) {
-  //     const _org = organizations.filter((o) => orgId == toNumber(o.id));
-  //     if (_org.length === 0) {
-  //       // redirect if org 404
-  //       router.push("/organizations");
-  //     }
-  //     setOrg(_org[0]);
-  //     setIsChecking(false);
-  //   }
-  // }, [organizations, isOrgLoading, isChecking, setIsChecking, setOrg, orgId, router]);
-
-  // // check if current org in own org
-  // useEffect(() => {
-  //   if (ownOrganizations && org) {
-  //     const result = ownOrganizations.filter((o) => o.name === org.name);
-  //     if (result.length === 0) {
-  //       setIsOwnOrg(false);
-  //       return;
-  //     }
-  //     setIsOwnOrg(true);
-  //   }
-  // }, [org, ownOrganizations]);
-
-  // useEffect(() => {
-  //   if (contractRO && orgId) {
-  //     if (orgOwner === "") {
-  //       ownerOfOrg(orgId).then((id) => {
-  //         setOrgOwner(id);
-  //       });
-  //     }
-  //   }
-  // }, [orgOwner, setOrgOwner, orgId, ownerOfOrg, contractRO]);
-
-  // useEffect(() => {
-  //   if (!isOwnOrg && evmAddress && document.to === "") {
-  //     setDocument({ ...document, to: evmAddress });
-  //   }
-  // }, [isOwnOrg, document, setDocument, evmAddress]);
-
   useEffect(() => {
     if (attachments) {
       const file_reader = new FileReader();
@@ -572,30 +408,6 @@ export default function MintCredential() {
     }
   }, [csvContent, schema]);
 
-  // useEffect(() => {
-  //   if (!evmWallet && !show) {
-  //     toggleRequest();
-  //   }
-  // }, [evmWallet, toggleRequest, show]);
-
-  // useEffect(() => {
-  //   let keys = [];
-  //   Object.keys(schema.properties).forEach((property) => {
-  //     const t = schema[property]["type"];
-  //     if (t === "array") {
-  //       keys.push(t);
-  //     }
-  //   });
-
-  //   if(keys.length === 0) {
-  //     return
-  //   }
-
-  //   keys.forEach((k) => {
-
-  //   })
-  // }, [schema]);
-
   useEffect(() => {
     console.log(bulkData);
   }, [bulkData]);
@@ -619,7 +431,6 @@ export default function MintCredential() {
             type="text"
             name="to"
             value={document.to}
-            // onChange={handleDocChange}
             disabled={!isOwner}
           />
           <label className="label" htmlFor="to"></label>
@@ -669,31 +480,14 @@ export default function MintCredential() {
               Create all
             </button>
           )}
-
-          {/* {!isOwner && (
-            <button className="btn btn-block btn-primary" onClick={handleSubmitDoc}>
-              Submit All
-            </button>
-          )} */}
         </div>
       )}
 
       {bulkData.length === 0 && (
         <div className="w-full flex justify-end space-x-4 mt-8">
-          {isOwner && (
-            <button className="btn btn-block btn-primary" onClick={handleMintCredential}>
-              Create
-            </button>
-          )}
-
-          {!isOwner && (
-            <button
-              className="btn btn-block btn-primary"
-              // onClick={handleSubmitDoc}
-            >
-              Submit Request
-            </button>
-          )}
+          <button className="btn btn-block btn-primary" onClick={handleMintCredential}>
+            Create
+          </button>
         </div>
       )}
     </div>

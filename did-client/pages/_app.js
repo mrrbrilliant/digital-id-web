@@ -51,14 +51,14 @@ function MyApp({ Component, pageProps }) {
           <WalletProvider>
             <ContractProvider>
               <BalanceProvider>
-                <ProfileProvider>
-                  <DataProvider>
+                <DataProvider>
+                  <ProfileProvider>
                     <Layout>
                       <UnlockWallet />
                       <Component {...pageProps} />
                     </Layout>
-                  </DataProvider>
-                </ProfileProvider>
+                  </ProfileProvider>
+                </DataProvider>
               </BalanceProvider>
             </ContractProvider>
           </WalletProvider>

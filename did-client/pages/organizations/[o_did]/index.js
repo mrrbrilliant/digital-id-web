@@ -6,7 +6,6 @@ import Image from "next/image";
 import Modal from "../../../components/modal";
 import { VscEllipsis, VscTrash } from "react-icons/vsc";
 import { VscVerified, VscUnverified, VscKebabVertical } from "react-icons/vsc";
-// import BtnWithAuth from "../../hooks/useAuthCallback";
 
 import { toast } from "react-toastify";
 
@@ -198,60 +197,49 @@ export default function Org() {
           </div>
         </Modal>
       )}
-      <div className="flex justify-between rounded-xl">
-        <h1 className="font-bold text-xl px-4 md:px-0">{organization.details.name}</h1>
-
-        <div className="hidden md:block">
-          {isOwner && (
-            <div>
-              <label
-                className="btn btn-sm btn-warning rounded-xl modal-button ml-2"
+      <div className="w-full h-[50vh] flex flex-col mb-6">
+        <div className="flex-grow bg-base-100 rounded-xl relative bg-gradient-to-r from-green-400 to-blue-500">
+          <div className="avatar absolute -bottom-1 left-1/2 -translate-x-1/2 z-40 ">
+            <div className="w-32 p-4 bg-base-100 rounded-full light:bg-white dark:bg-base-100 backdrop-blur">
+              <img src={organization.details.logo} alt="" className="w-[120px] h-auto" />
+            </div>
+          </div>
+        </div>
+        <div className=" rounded-b-xl flex place-items-center place-content-center p-4 relative light:bg-white dark:bg-base-100 -translate-y-4 py-8">
+          <div className="w-2/3 md:w-1/2 flex flex-col place-content-center place-items-center gap-2">
+            <h1 className="font-bold text-3xl py-4 md:px-0">{organization.details.name}</h1>
+            <p className="text-center">{organization.details.description}</p>
+          </div>
+          <div className="dropdown dropdown-end block mr-4 absolute right-4">
+            <label
+              tabIndex={0}
+              className="btn btn-primary bg-opacity-30 btn-sm btn-circle border-none hover:bg-opacity-50 "
+            >
+              <VscEllipsis size={24} className="text-primary" />
+            </label>
+            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-[50vw] md:w-64 ">
+              <li
+                className="p-4 hover:bg-base-100 hover:bg-opacity-80 rounded-xl cursor-pointer"
                 onClick={toggleTransferOrganization}
               >
                 Transfer Organzation
-              </label>
-              <label
-                className="btn btn-error btn-sm rounded-xl modal-button ml-2"
+              </li>
+              <li
+                className="p-4 hover:bg-base-100 hover:bg-opacity-80 rounded-xl cursor-pointer"
                 onClick={toggleBurnOrganizationModal}
               >
                 Burn Organzation
-              </label>
-
+              </li>
               <Link href={`/organizations/${o_did}/mint_schema`}>
-                <label className="btn btn-info btn-sm rounded-xl modal-button ml-2" htmlFor="my-modal-3">
-                  Mint Schema
-                </label>
+                <li className="p-4 hover:bg-base-100 hover:bg-opacity-80 rounded-xl cursor-pointer">Mint Schema</li>
               </Link>
-            </div>
-          )}
-        </div>
-
-        <div className="dropdown dropdown-end block md:hidden mr-4">
-          <label tabIndex={0} className="btn btn-primary bg-opacity-30 btn-sm btn-circle ">
-            <VscEllipsis size={24} />
-          </label>
-          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-[50vw] md:w-64 ">
-            <li
-              className="p-4 hover:bg-base-100 hover:bg-opacity-80 rounded-xl cursor-pointer"
-              onClick={toggleTransferOrganization}
-            >
-              Transfer Organzation
-            </li>
-            <li
-              className="p-4 hover:bg-base-100 hover:bg-opacity-80 rounded-xl cursor-pointer"
-              onClick={toggleBurnOrganizationModal}
-            >
-              Burn Organzation
-            </li>
-            <Link href={`/organizations/${o_did}/mint_schema`}>
-              <li className="p-4 hover:bg-base-100 hover:bg-opacity-80 rounded-xl cursor-pointer">Mint Schema</li>
-            </Link>
-          </ul>
+            </ul>
+          </div>
         </div>
       </div>
 
       <br />
-
+      <h2 className="font-bold text-2xl">Schemas</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4 p-4 md:p-0">
         {schemas &&
           schemas.map((schema) => {
@@ -288,21 +276,11 @@ const TypeCard = ({ type, isOwner, orgId, setToBurnSchema, toggleBurnSchemaModal
           <h4 className="text-xl font-semibold">{type.details.title}</h4>
           <p className="flex-grow">{type.details.description}</p>
           <div className="flex gap-4 place-items-end">
-            {isOwner && (
-              <Link href={`/organizations/${orgId}/schemas/${type.did}/mint_credential`}>
-                <button className="btn py-2 px-4 text-white leading-none rounded-xl font-bold  bg-primarypink hover:bg-opacity-75  uppercase">
-                  Create
-                </button>
-              </Link>
-            )}
-
-            {!isOwner && (
-              <Link href={`/organizations/${orgId}/schemas/${type.did}/mint_credential`}>
-                <button className="btn py-2 px-4 text-white leading-none rounded-xl font-bold  bg-primarypink hover:bg-opacity-75  uppercase">
-                  Request
-                </button>
-              </Link>
-            )}
+            <Link href={`/organizations/${orgId}/schemas/${type.did}/mint_credential`}>
+              <button className="btn py-2 px-4 text-white leading-none rounded-xl font-bold  bg-primarypink hover:bg-opacity-75  uppercase">
+                {(!isOwner && "Request") || "Create"}
+              </button>
+            </Link>
 
             <Link href={`/organizations/${orgId}/schemas/${type?.did}`}>
               <button className="btn py-2 px-4 text-white leading-none rounded-xl font-bold  bg-primarypink hover:bg-opacity-75  uppercase">

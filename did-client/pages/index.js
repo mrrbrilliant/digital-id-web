@@ -12,6 +12,7 @@ import { DataContext } from "../contexts/data";
 import { ContractContext } from "../contexts/contract";
 import { ethers } from "ethers";
 import { NetworkContext } from "../contexts/network";
+import { ProfileContext } from "../contexts/profile";
 
 export default function Home() {
   // Contexts
@@ -20,6 +21,7 @@ export default function Home() {
   const network = useContext(NetworkContext);
   const { balance, transfer, fetchBalance } = useContext(BalanceContext);
   const { organizations, schemas, credentials, isDataReady, fetchData } = useContext(DataContext);
+  const { profile } = useContext(ProfileContext);
   // States
   const [showTransfer, setShowTransfer] = useState(false);
   const [showReceive, setShowReceive] = useState(false);
@@ -71,7 +73,7 @@ export default function Home() {
   }
 
   const getMyCredentials = useCallback(() => {
-    const mine = credentials.filter((c) => c.owner === evmAddress);
+    const mine = credentials.filter((c) => c.owner === evmAddress && c.parent !== 1);
     setMyCredentials(mine);
   }, [credentials, setMyCredentials, evmAddress]);
   useEffect(() => {
@@ -89,8 +91,22 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-0">
-      <div className="w-full stats bg-base-100">
-        <div className="stat p-6 overflow-x-hidden">
+      <div className="w-full flex rounded-xl bg-gradient-to-r from-green-400 to-blue-500 text-gray-800">
+        <div className="w-64">
+          <div className="w-full h-full flex flex-col place-content-center place-items-center gap-4">
+            <div className="avatar">
+              <div className="w-20 bg-base-100 rounded-full ring ring-primary ring-offset-base-100 bg-opacity-50 backdrop-blur ring-offset-2">
+                <img
+                  src={profile ? profile.details.avatar[0] : "https://api.lorem.space/image/face?hash=33791"}
+                  alt=""
+                  className="w-[120px] h-auto"
+                />
+              </div>
+            </div>
+            <h1 className="font-bold capitalize text-xl">{profile && profile.details.fullName}</h1>
+          </div>
+        </div>
+        <div className="stat flex-grow p-6 overflow-x-hidden">
           <div className="stat-title">Current balance</div>
           <div className="stat-value">
             <div className="flex mb-4">
@@ -99,7 +115,7 @@ export default function Home() {
                 currency: "SEL",
                 maximumFractionDigits: 6,
               }).format(balance)}
-              {!evmPrivateKey && (
+              {!evmWallet && (
                 <span>
                   <VscLock fontSize={32} onClick={toggleAuthenticationRequest} />
                 </span>
@@ -110,18 +126,25 @@ export default function Home() {
           </div>
           <div className="stat-actions flex gap-6">
             <a
-              className="btn btn-sm btn-success md:flex-grow"
+              className="btn no-animation bg-opacity-50 backdrop-blur-xl md:flex-grow border-none"
               href="https://faucet.selendra.org/testnet"
               rel="noreferrer"
               target="_blank"
             >
               Deposit
             </a>
-            <button className="btn btn-sm btn-primary md:flex-grow" onClick={toggleTransfer}>
-              Transfer
-            </button>
-            <button className="btn btn-sm btn-secondary md:flex-grow" onClick={toggleReceive}>
+
+            <button
+              className="btn no-animation bg-opacity-50 backdrop-blur-xl md:flex-grow border-none"
+              onClick={toggleReceive}
+            >
               Receive
+            </button>
+            <button
+              className="btn no-animation bg-opacity-50 backdrop-blur-xl md:flex-grow border-none"
+              onClick={toggleTransfer}
+            >
+              Transfer
             </button>
           </div>
         </div>
@@ -276,12 +299,6 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
     }
   }, [organization, schema, credential, checkedImage, findImage]);
 
-  useEffect(() => {
-    if (contract && contract.provider && typeof verified === "undefined") {
-      verification();
-    }
-  }, [contract, verified, verification]);
-
   return (
     <div className="rounded-2xl p-4 border-gray-100 bg-base-100 relative overflow-hidden">
       <div className="h-full flex flex-col place-content-between">
@@ -296,10 +313,10 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
             <img className="w-full h-auto" src={schema?.details.images[0]} alt="" />
           </div>
         )}
-        {/* {toNumber(credential.ctypeId)} */}
+
         <div className="w-full flex flex-col space-y-4">
           <div>
-            <Badge status={verified} />
+            <Badge status={credential.isVerified} />
             <h4 className="text-xl font-semibold uppercase">{schema?.details.title}</h4>
             <div className="font-bold text-xs text-gray-500">{organization?.details.name}</div>
           </div>
@@ -310,7 +327,7 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
           />
 
           <div className="grid grid-cols-3 text-xs">
-            {/* {credential &&
+            {credential &&
               Object.entries(credential.details).map(
                 (e, i) =>
                   i < 3 && (
@@ -321,7 +338,7 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
                       )}
                     </React.Fragment>
                   )
-              )} */}
+              )}
           </div>
 
           {openTransfer && (

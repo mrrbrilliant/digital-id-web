@@ -11,13 +11,9 @@ export default function NetworkProvider({ children }) {
   const [network, setNework] = useState(null);
 
   const initProvider = useCallback(async () => {
-    try {
-      const provider = EvmRpcProvider.from(networkAddress);
-      await provider.isReady();
-      setNework(provider);
-    } catch (error) {
-      console.log(error);
-    }
+    const provider = EvmRpcProvider.from(networkAddress);
+    await provider.isReady();
+    setNework(provider);
   }, [setNework]);
 
   useEffect(() => {

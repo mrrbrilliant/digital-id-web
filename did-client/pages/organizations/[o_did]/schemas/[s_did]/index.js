@@ -2,9 +2,6 @@
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 
-import { ethers } from "ethers";
-import { VscVerified, VscUnverified } from "react-icons/vsc";
-import Link from "next/link";
 // import Badge from "../../../components/badge";
 import { toast } from "react-toastify";
 import Modal from "../../../../../components/modal";
@@ -70,14 +67,14 @@ export default function CredentialsOfSchema() {
   }
   // Validate schema exists
   useEffect(() => {
-    if (isDataReady && thisSchema.length === 0) {
+    if (isDataReady && thisSchema && thisSchema.length === 0) {
       router.push(`/organizations/${o_did}`);
     }
   }, [isDataReady, thisSchema, router, o_did]);
 
   // Validate organization exists
   useEffect(() => {
-    if (isDataReady && thisOrganization.length === 0) {
+    if (isDataReady && thisOrganization && thisOrganization.length === 0) {
       router.push(`/organizations`);
     }
   }, [isDataReady, thisOrganization, router]);
@@ -204,12 +201,6 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
     setVerified(v);
   }, [contract, setVerified, credential]);
 
-  useEffect(() => {
-    if (contract && contract.provider && typeof verified === "undefined") {
-      verification();
-    }
-  }, [contract, verified, verification]);
-
   return (
     <div className=" rounded-2xl p-6  border-gray-100 bg-base-100 relative overflow-hidden">
       <div className="flex flex-col ">
@@ -249,19 +240,14 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
             <label className="label pl-0">
               <span className="label-text font-bold">Status</span>
             </label>
-            {typeof verified === "undefined" && <div className="font-bold text-xs text-success">Checking</div>}
-            {typeof verified !== "undefined" && verified && (
-              <div className="font-bold text-xs text-success">Verified</div>
-            )}
-            {typeof verified !== "undefined" && !verified && (
-              <div className="font-bold text-xs text-error">Unverified</div>
-            )}
+            {credential.isVerified && <div className="font-bold text-xs text-success">Verified</div>}
+            {!credential.isVerified && <div className="font-bold text-xs text-error">Unverified</div>}
           </div>
           <div className="flex flex-row place-items-center place-content-center gap-6">
             <button className="py-2 px-4 rounded-2xl btn btn-primary">Detail</button>
             {isOwner && (
               <>
-                {!verified && (
+                {!credential.isVerified && (
                   <button
                     className="py-2 px-4 btn btn-warning rounded-2xl"
                     onClick={() => {
@@ -275,11 +261,11 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
                   <button
                     className="py-2 px-4 flex-grow btn btn-warning rounded-2xl"
                     onClick={() => {
-                      verified && handleRevoke(0);
-                      !verified && handleRevoke(1);
+                      credential.isVerified && handleRevoke(0);
+                      !credential.isVerified && handleRevoke(1);
                     }}
                   >
-                    {verified ? "Revoke" : "Unrevoke"}
+                    {credential.isVerified ? "Revoke" : "Unrevoke"}
                   </button>
                 )}
               </>
@@ -294,9 +280,8 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
         </div>
         <div className="flex flex-row place-content-between">
           <p className="font-bold text-sm">Status: </p>
-          {typeof verified === "undefined" && <p className="font-bold text-xs text-success">Checking</p>}
-          {typeof verified !== "undefined" && verified && <p className="font-bold text-xs text-success">Verified</p>}
-          {typeof verified !== "undefined" && !verified && <p className="font-bold text-xs text-error">Unverified</p>}
+          {credential.isVerified && <p className="font-bold text-xs text-success">Verified</p>}
+          {!credential.isVerified && <p className="font-bold text-xs text-error">Unverified</p>}
         </div>
         <div className="flex flex-row place-content-between">
           <p className="font-bold text-sm">Address: </p>
@@ -310,7 +295,7 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
           <button className="py-2 px-4 rounded-2xl btn btn-sm btn-primary flex-grow">Detail</button>
           {isOwner && (
             <>
-              {!verified && (
+              {!credential.isVerified && (
                 <button
                   className="py-2 px-4 btn btn-warning btn-sm rounded-2xl flex-grow"
                   onClick={() => {
@@ -324,11 +309,11 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
                 <button
                   className="py-2 px-4 flex-grow btn btn-sm btn-warning rounded-2xl"
                   onClick={() => {
-                    verified && handleRevoke(0);
-                    !verified && handleRevoke(1);
+                    credential.isVerified && handleRevoke(0);
+                    !credential.isVerified && handleRevoke(1);
                   }}
                 >
-                  {verified ? "Revoke" : "Unrevoke"}
+                  {credential.isVerified ? "Revoke" : "Unrevoke"}
                 </button>
               )}
             </>

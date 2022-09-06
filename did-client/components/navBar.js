@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
@@ -18,6 +18,7 @@ const Navbar = ({ toggleQr }) => {
   const { theme, setTheme } = useTheme();
   const { profile } = useContext(ProfileContext);
   const { forgetWallet, exportWallet } = useContext(WalletContext);
+  const router = useRouter();
 
   function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
@@ -33,9 +34,8 @@ const Navbar = ({ toggleQr }) => {
     }
   }
 
-  const router = useRouter();
   return (
-    <div className="w-full h-20 navbar bg-base-100 md:px-6 lg:px-[10vw] xl:px-[15vw]">
+    <div className="w-full h-20 navbar bg-base-100 md:px-6 lg:px-[10vw] xl:px-[20vw]">
       <div className="dropdown">
         <label tabIndex={0} className="btn btn-ghost lg:hidden">
           <svg
@@ -105,7 +105,7 @@ const Navbar = ({ toggleQr }) => {
         <div className=" dropdown dropdown-end">
           <label tabIndex={0} className="btn btn-block btn-circle avatar border-none">
             <div className="h-full rounded-full">
-              <img src={profile ? profile.avatar : "https://api.lorem.space/image/face?hash=33791"} alt="" />
+              <img src={profile ? profile.details.avatar[0] : "https://api.lorem.space/image/face?hash=33791"} alt="" />
             </div>
           </label>
           <ul

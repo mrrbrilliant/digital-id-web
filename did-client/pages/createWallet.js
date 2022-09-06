@@ -2,8 +2,6 @@ import React, { useContext, useState, useEffect } from "react";
 import { WalletContext } from "../contexts/wallet";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
-import axios from "axios";
-import { BalanceContext } from "../contexts/balance";
 
 const initalState = {
   password: "",
