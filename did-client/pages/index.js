@@ -216,9 +216,14 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-6 gap-6 ">
             {myCredentials &&
               myCredentials.length > 0 &&
-              myCredentials.map((credential, index) => {
+              myCredentials.map((credential) => {
                 return (
-                  <DocumentCard key={index} credential={credential} schemas={schemas} organizations={organizations} />
+                  <DocumentCard
+                    key={credential.did}
+                    credential={credential}
+                    schemas={schemas}
+                    organizations={organizations}
+                  />
                 );
               })}
           </div>
@@ -275,11 +280,6 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
     }
     setCheckedImage(true);
   }, [schema, credential, images, setImages]);
-
-  const verification = useCallback(async () => {
-    const v = await contract.verify(credential.did);
-    setVerified(v);
-  }, [contract, setVerified, credential]);
 
   useEffect(() => {
     if (credential && schemas && typeof schema === "undefined") {

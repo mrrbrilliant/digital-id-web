@@ -194,14 +194,16 @@ export default function WalletProvider({ children }) {
   }, [checkingAuth, setEncryptedWallet, setEvmAddress, setSubstrateAddress, setCheckingAuth]);
 
   useEffect(() => {
-    if (path !== "/profile") {
-      if (!checkingAuth) {
-        if (!evmAddress && !substrateAddress && !encryptedWallet) {
-          if (router.pathname !== "/createWallet") {
-            router.replace("/createWallet");
-          }
-          return;
+    // if (path !== "/profile" && path !== "/credentials") {
+
+    // }
+
+    if (!checkingAuth) {
+      if (!evmAddress && !substrateAddress && !encryptedWallet) {
+        if (router.pathname !== "/createWallet") {
+          router.replace("/createWallet");
         }
+        return;
       }
     }
   }, [checkingAuth, evmAddress, substrateAddress, encryptedWallet, router, path]);

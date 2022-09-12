@@ -17,11 +17,16 @@ const Layout = ({ children }) => {
   }
 
   const unlock = useCallback(() => {
-    if (path !== "/profile") {
-      if (encryptedWallet) {
-        if (!checkingAuth && !evmWallet && !show) {
-          toggleAuthenticationRequest();
-        }
+    if (window.location.pathname.includes("/credentials")) {
+      return;
+    }
+
+    if (window.location.pathname.includes("/profile")) {
+      return;
+    }
+    if (encryptedWallet) {
+      if (!checkingAuth && !evmWallet && !show) {
+        toggleAuthenticationRequest();
       }
     }
   }, [encryptedWallet, checkingAuth, evmWallet, toggleAuthenticationRequest, show, path]);

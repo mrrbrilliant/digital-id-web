@@ -1,37 +1,51 @@
-import React, { useCallback, useState, useEffect, useContext } from "react";
-import { useRouter } from "next/router";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
+import { useRouter } from "next/router";
+import _ from "lodash";
+import ethers from "ethers";
+import { DataContext } from "../contexts/data";
+import { ContractContext } from "../contexts/contract";
+import Badge from "../components/badge";
+import { toast } from "react-toastify";
 
-import { DataContext } from "../../contexts/data";
-import { ContractContext } from "../../contexts/contract";
-import Badge from "../../components/badge";
-
-export default function CredentialDID() {
-  const { organizations, schemas, credentials: allCredentails, isDataReady } = useContext(DataContext);
-
+export default function UserProfile() {
+  const { organizations, schemas, credentials, isDataReady, fetchData } = useContext(DataContext);
   const [data, setData] = useState();
   const router = useRouter();
-  const { c_did } = router.query;
+  const { address } = router.query;
 
   const init = useCallback(async () => {
     try {
-      const data = await axios.get(`/api/did?did=${c_did}`).then((res) => res.data);
-      setData(data);
+      const _data = await axios.get(`/api/assetsOf?address=${address}`).then((res) => res.data);
+      setData(_data);
     } catch (error) {}
-  }, [setData, c_did]);
+  }, [setData, address]);
 
   useEffect(() => {
-    if (c_did && typeof data === "undefined") {
+    if (address && typeof data === "undefined") {
       init();
     }
-  }, [c_did, init]);
+  }, [data, init, address]);
 
   return (
-    <div className="w-full flex place-content-center place-items-center">
-      {data && <DocumentCard key={data.did} credential={data} schemas={schemas} organizations={organizations} />}
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-6 gap-6 ">
+      {/* <pre>{JSON.stringify(data, null, 4)}</pre> */}
+      {data &&
+        data["credentials"].length > 0 &&
+        data["credentials"].map((credential) => {
+          return (
+            <DocumentCard
+              key={credential.did}
+              credential={credential}
+              schemas={schemas}
+              organizations={organizations}
+            />
+          );
+        })}
     </div>
   );
 }
+
 const DocumentCard = ({ credential, schemas, organizations }) => {
   const { fetchData } = useContext(DataContext);
   const { contract } = useContext(ContractContext);
@@ -99,7 +113,7 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
   }, [organization, schema, credential, checkedImage, findImage]);
 
   return (
-    <div className="w-full md:w-[20vw] rounded-2xl p-4 border-gray-100 bg-base-100 relative overflow-hidden">
+    <div className="rounded-2xl p-4 border-gray-100 bg-base-100 relative overflow-hidden">
       <div className="h-full flex flex-col place-content-between">
         {images && images.length > 0 && (
           <div className="w-full h-max flex-grow flex place-content-center place-items-center mb-4 rounded-xl overflow-hidden relative">
@@ -125,18 +139,19 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
             readOnly
           />
 
-          <div className="grid grid-cols-3 text-xs gap-y-2 overflow-x-hidden">
+          <div className="grid grid-cols-3 text-xs">
             {credential &&
-              Object.entries(credential.details).map((e, i) => (
-                <React.Fragment key={e[0]}>
-                  {e[1]["label"] !== "Images" && <div> {_.startCase(e[0])} :</div>}
-                  {e[1]["label"] !== "Images" && (
-                    <div className="w-full col-span-2 font-medium text-right bg-transparent resize-none text-ellipsis">
-                      {credential.details[e[0]]}
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
+              Object.entries(credential.details).map(
+                (e, i) =>
+                  i < 3 && (
+                    <React.Fragment key={e[0]}>
+                      {e[1]["label"] !== "Images" && <div> {_.startCase(e[0])} :</div>}
+                      {e[1]["label"] !== "Images" && (
+                        <div className="col-span-2 font-medium uppercase text-right">{credential.details[e[0]]}</div>
+                      )}
+                    </React.Fragment>
+                  )
+              )}
           </div>
 
           {openTransfer && (
@@ -168,6 +183,10 @@ const DocumentCard = ({ credential, schemas, organizations }) => {
           )}
           {!openTransfer && (
             <div className="flex space-x-2">
+              {credential && Object.entries(credential.details).length > 3 && (
+                <button className="p-2 flex-grow btn btn-secondary btn-sm text-xs uppercase">Detail</button>
+              )}
+
               {credential && credential.state == 4 && (
                 <button
                   className="p-2 btn btn-primary btn-sm flex-grow text-white w-32 leading-none rounded-xl font-bold mt-2 bg-primarypink hover:bg-opacity-75 text-xs uppercase"

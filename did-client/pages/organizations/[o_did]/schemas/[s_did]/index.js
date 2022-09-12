@@ -230,11 +230,13 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
             <label className="label pl-0">
               <span className="label-text font-bold">Owner</span>
             </label>
-            <textarea
-              className="w-full focus:outline-none resize-none bg-transparent font-mono text-xs"
-              readOnly
-              value={credential.owner}
-            />
+            <a
+              href={`/profile?address=${credential.owner}`}
+              target="_blank"
+              className="btn-link cursor-pointer font-mono text-xs"
+            >
+              {credential.owner}
+            </a>
           </div>
           <div className="form-control flex-grow">
             <label className="label pl-0">
@@ -244,7 +246,13 @@ const DocumentCard = ({ credential, schema, organization, isOwner }) => {
             {!credential.isVerified && <div className="font-bold text-xs text-error">Unverified</div>}
           </div>
           <div className="flex flex-row place-items-center place-content-center gap-6">
-            <button className="py-2 px-4 rounded-2xl btn btn-primary">Detail</button>
+            <a
+              className="py-2 px-4 rounded-2xl btn btn-primary"
+              href={`/credentials/${credential.did}`}
+              target="_blank"
+            >
+              Detail
+            </a>
             {isOwner && (
               <>
                 {!credential.isVerified && (
