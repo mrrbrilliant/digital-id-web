@@ -14,15 +14,17 @@ export default function Scanner({ toggleQr, isOn }) {
   const router = useRouter();
 
   const submit = useCallback(
-    ({ id, signature, evmAddress }) => {
+    ({ id, signature }) => {
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
 
       const raw = JSON.stringify({
         id,
         signature: `Web3 ${signature}`,
-        evmAddress,
+        publicKey: evmAddress,
       });
+
+      console.log(raw);
 
       const requestOptions = {
         method: "POST",
@@ -65,8 +67,12 @@ export default function Scanner({ toggleQr, isOn }) {
       if (data.id && !emitLock) {
         setEmitLock(true);
         signMessage(data.id).then((msg) => {
-          submit({ id: data.id, signature: msg, evmAddress });
+          submit({ id: data.id, signature: msg });
         });
+      }
+
+      if (!data.id) {
+        console.log("Invalid QR");
       }
     }
   }, [data, emitLock, setEmitLock, signMessage, submit, evmAddress]);
