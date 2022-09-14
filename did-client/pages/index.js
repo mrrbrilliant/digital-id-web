@@ -103,7 +103,7 @@ export default function Home() {
                 />
               </div>
             </div>
-            <h1 className="font-bold capitalize text-xl">{profile && profile.details.fullName}</h1>
+            <h1 className="font-bold capitalize text-xl">{profile && profile.details.full_name}</h1>
           </div>
         </div>
         <div className="stat flex-grow p-6 overflow-x-hidden">

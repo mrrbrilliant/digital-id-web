@@ -176,6 +176,16 @@ export default function WalletProvider({ children }) {
     a.click();
   }
 
+  function exportMnemonic() {
+    const blob = new Blob([evmWallet.mnemonic.phrase], { type: "application/json" });
+    const a = document.createElement("a");
+    a.download = `mnemonic_${evmAddress}.txt`;
+    a.href = URL.createObjectURL(blob);
+    a.addEventListener("click", (e) => {
+      setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+    });
+    a.click();
+  }
   function toggleAuthenticationRequest() {
     setShow(!show);
   }
@@ -221,6 +231,7 @@ export default function WalletProvider({ children }) {
     setCb,
     toggleAuthenticationRequest,
     exportWallet,
+    exportMnemonic,
   };
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }

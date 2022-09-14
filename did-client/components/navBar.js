@@ -17,7 +17,7 @@ const navigation = [
 const Navbar = ({ toggleQr }) => {
   const { theme, setTheme } = useTheme();
   const { profile } = useContext(ProfileContext);
-  const { forgetWallet, exportWallet, evmAddress } = useContext(WalletContext);
+  const { forgetWallet, exportWallet, evmAddress, exportMnemonic } = useContext(WalletContext);
   const router = useRouter();
 
   function classNames(...classes) {
@@ -116,18 +116,20 @@ const Navbar = ({ toggleQr }) => {
             className=" mt-3 dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-64 backdrop-blur-md bg-opacity-90 flex space-y-2"
           >
             <li>
-              <a className="flex gap-4">
-                <VscPerson size={18} /> Profile
-              </a>
-            </li>
-            <li>
-              <a className="flex gap-4">
-                <VscSettingsGear size={18} /> Settings
-              </a>
+              <Link href={`/profile?address=${evmAddress}`}>
+                <a className="flex gap-4">
+                  <VscPerson size={18} /> Profile
+                </a>
+              </Link>
             </li>
             <li>
               <button className="flex gap-4" onClick={exportWallet}>
                 <VscFile size={18} /> Export Wallet
+              </button>
+            </li>
+            <li>
+              <button className="flex gap-4" onClick={exportMnemonic}>
+                <VscFile size={18} /> Export Mnemonic
               </button>
             </li>
             <li>
