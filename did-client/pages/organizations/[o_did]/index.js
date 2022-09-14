@@ -17,7 +17,7 @@ import { WalletContext } from "../../../contexts/wallet";
 const initialToBurnSchema = { title: "", did: null };
 
 export default function Org() {
-  const { organizations, schemas: allSchemas, isDataReady } = useContext(DataContext);
+  const { organizations, schemas: allSchemas, isDataReady, fetchData } = useContext(DataContext);
   const { evmAddress } = useContext(WalletContext);
   const { contract } = useContext(ContractContext);
 
@@ -52,6 +52,8 @@ export default function Org() {
       const burn = await contract.burn(o_did);
       await burn.wait();
       toast.update(toast_id, { render: "Organization burnt!", type: "success", isLoading: false, autoClose: 2000 });
+      await fetchData();
+      router.push("/organizations");
     } catch (error) {
       toast.update(toast_id, {
         render: `Failed! ${error.message.toString()}`,
@@ -69,6 +71,7 @@ export default function Org() {
       const burn = await contract.burn(toBurnSchema.did);
       await burn.wait();
       toast.update(toaster, { render: "Burnt successfully.", isLoading: false, type: "success", autoClose: 3000 });
+      await fetchData();
     } catch (error) {
       toast.update(toaster, {
         render: `Failed to burn organization schema!`,
@@ -96,6 +99,7 @@ export default function Org() {
         type: "success",
         autoClose: 3000,
       });
+      await fetchData();
     } catch (error) {
       console.log(error);
       toast.update(toaster, {

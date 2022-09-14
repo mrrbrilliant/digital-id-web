@@ -14,7 +14,7 @@ import { WalletContext } from "../../../../../contexts/wallet";
 export default function CredentialsOfSchema() {
   // Contexts
   const { contract } = useContext(ContractContext);
-  const { organizations, schemas, credentials: allCredentails, isDataReady } = useContext(DataContext);
+  const { organizations, schemas, credentials: allCredentails, isDataReady, fetchData } = useContext(DataContext);
   const { evmAddress } = useContext(WalletContext);
   // States
   const [schema, setSchema] = useState(null);
@@ -54,6 +54,8 @@ export default function CredentialsOfSchema() {
         type: "success",
         autoClose: 3000,
       });
+      await fetchData();
+      router.push(`/organizations/${o_did}`);
     } catch (error) {
       console.log(error);
       toast.update(toaster, {

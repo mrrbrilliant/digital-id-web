@@ -26,6 +26,7 @@ const initialScheme = {
   description: "",
   ownerId: "",
   images: [],
+  lifespan: 0,
 };
 
 const initialState = () => ({
@@ -39,7 +40,7 @@ const MintSchema = () => {
   const router = useRouter();
   // Contexts
   const { contract } = useContext(ContractContext);
-  const { organizations, isDataReady } = useContext(DataContext);
+  const { organizations, isDataReady, fetchData } = useContext(DataContext);
   const { evmWallet, evmAddress, toggleAuthenticationRequest, show } = useContext(WalletContext);
   // States
   const [currentOrganization, setCurrentOrganization] = useState();
@@ -207,6 +208,7 @@ const MintSchema = () => {
         isLoading: false,
         autoClose: 4000,
       });
+      await fetchData();
     } catch (error) {
       console.log(error);
       toast.update(toaster, {
@@ -221,6 +223,9 @@ const MintSchema = () => {
   function hanldeStateNumberChange(e) {
     const { value } = e.target;
     setStateNumber(value);
+    if (value < 2 || value > 3) {
+      setSchema({ ...schema, lifespan: 0 });
+    }
   }
 
   const validateCreate = useCallback(() => {
@@ -379,13 +384,13 @@ const MintSchema = () => {
                 type="number"
                 step={1}
                 min={1}
-                // value={createCtypeForm.lifespan}
-                onChange={handleCtypeFormChange}
+                value={schema.lifespan}
+                onChange={handleChange}
                 className="w-full p-2 input input-bordered"
               />
               <label className="label">
                 <span className="label-text text-error font-bold">
-                  Caution! This document will expire in {createCtypeForm.lifespan} days after created!
+                  Caution! This document will expire in {schema.lifespan} days after created!
                 </span>
               </label>
             </div>

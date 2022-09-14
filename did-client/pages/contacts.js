@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState, useContext } from "react";
+import React, { useContext } from "react";
 import { ContactContext } from "../contexts/contact";
 import { DataContext } from "../contexts/data";
 import { VscTrash } from "react-icons/vsc";
 import _ from "lodash";
 export default function Contacts() {
   const { contacts } = useContext(ContactContext);
-  const { organizations, schemas, credentials, isDataReady, fetchData } = useContext(DataContext);
+  const { organizations, schemas } = useContext(DataContext);
 
   if (typeof contacts === "undefined") {
     return <div>Loading...</div>;
@@ -22,21 +22,8 @@ export default function Contacts() {
   );
 }
 
-const DocumentCard = ({ credential, schemas, organizations }) => {
-  const { fetchData } = useContext(DataContext);
+const DocumentCard = ({ credential }) => {
   const { removeContact } = useContext(ContactContext);
-
-  // const { contract } = useContext(ContractContext);
-  // const [schema, setSchema] = useState();
-  // const [organization, setOrganization] = useState();
-  // const [verified, setVerified] = useState();
-
-  // const thisSchema = schemas.filter((s) => s.did === credential.parent)[0];
-  // const thisOrganization = organizations.filter((o) => o.did === thisSchema.parent)[0];
-  // const [transferTo, setTransferTo] = useState("");
-  // const [openTransfer, setOpenTransfer] = useState(false);
-  // const [checkedImage, setCheckedImage] = useState(false);
-  // const [images, setImages] = useState([]);
 
   return (
     <div className="h-full flex flex-row place-content-center bg-base-100 p-4 rounded-xl gap-6">

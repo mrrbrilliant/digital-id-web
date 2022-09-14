@@ -24,19 +24,10 @@ const initialState = {
 const Organizations = () => {
   // Context
   const { evmAddress } = useContext(WalletContext);
-  const { organizations } = useContext(DataContext);
+  const { organizations, fetchData } = useContext(DataContext);
   const { contract } = useContext(ContractContext);
-
-  // const { setCb, toggleAuthenticationRequest, evmWallet } = useContext(WalletContext);
-
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  // const [createModalOpendoc, setCreateModalOpendoc] = useState(false);
-  // const [createModalOpenType, setCreateModalOpenType] = useState(false);
 
-  const [extension, setExtension] = useState({
-    logo: "",
-    website: "",
-  });
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [createOrgForm, setCreateOrgForm] = useState({
     name: "",
@@ -50,20 +41,8 @@ const Organizations = () => {
     setCreateModalOpen(!createModalOpen);
   }
 
-  // const [state, setState] = useState(initialState);
-  // const [createCtypeForm, setCreateCtypeForm] = useState({
-  //   id: uid(),
-  //   organizationId: -1,
-  //   propertiesURI: "",
-  //   propertiesHash: "",
-  //   transferable: false,
-  //   revokable: false,
-  //   expirable: false,
-  //   lifespan: 0,
-  // });
-
   function handleLogoChange(e) {
-    const { name, value, files } = e.target;
+    const { files } = e.target;
     const id = toast.loading("Uploading the logo.");
     if (files.length === 0) return;
     setIsUploadingImages(true);
@@ -88,6 +67,9 @@ const Organizations = () => {
         }
         setCreateOrgForm({ ...createOrgForm, logo: urls[0] });
         toast.update(id, { render: "Logo upload completed.", type: "success", isLoading: false, autoClose: 2000 });
+      })
+      .then(async () => {
+        await fetchData();
       })
       .catch((error) => {
         toast.update(id, { render: "Logo upload failed.", type: "error", isLoading: false, autoClose: 5000 });
@@ -142,10 +124,6 @@ const Organizations = () => {
       toast.update(id, { render: `Failed! ${error.toString()}`, type: "error", isLoading: false, autoClose: 5000 });
     }
   };
-
-  useEffect(() => {
-    console.log(organizations);
-  }, [organizations]);
 
   const ownOrgs = organizations.filter((org) => org.owner === evmAddress);
   const otherOrgs = organizations.filter((org) => org.owner !== evmAddress);

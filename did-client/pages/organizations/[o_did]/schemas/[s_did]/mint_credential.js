@@ -119,11 +119,8 @@ export default function MintCredential() {
           const mint = await contract.mintDocument(CID, schemaId);
           await mint.wait();
           toast.update(toaster, { render: "Minting credential.", isLoading: false, type: "success", autoClose: 3000 });
-          setTimeout(() => {
-            fetchData().then(() => {
-              router.push(`/organizations/${orgId}/schemas/${schemaId}`);
-            });
-          }, 5000);
+          await fetchData();
+          router.push(`/organizations/${orgId}/schemas/${schemaId}`);
         }
       } catch (error) {
         toast.update(toaster, {
@@ -349,6 +346,9 @@ export default function MintCredential() {
         }
       }, row * 5000);
     }
+
+    await fetchData();
+    router.push(`/organizations/${orgId}/schemas/${schemaId}`);
   }
 
   useEffect(() => {
@@ -408,9 +408,6 @@ export default function MintCredential() {
     }
   }, [csvContent, schema]);
 
-  useEffect(() => {
-    console.log(bulkData);
-  }, [bulkData]);
   return (
     <div className="w-full">
       <div className="flex place-content-between place-items-center mb-10">
