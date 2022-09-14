@@ -194,10 +194,6 @@ export default function WalletProvider({ children }) {
   }, [checkingAuth, setEncryptedWallet, setEvmAddress, setSubstrateAddress, setCheckingAuth]);
 
   useEffect(() => {
-    // if (path !== "/profile" && path !== "/credentials") {
-
-    // }
-
     if (!checkingAuth) {
       if (!evmAddress && !substrateAddress && !encryptedWallet) {
         if (router.pathname !== "/createWallet") {

@@ -97,7 +97,7 @@ export default function Home() {
             <div className="avatar">
               <div className="w-20 bg-base-100 rounded-full ring ring-primary ring-offset-base-100 bg-opacity-50 backdrop-blur ring-offset-2">
                 <img
-                  src={profile ? profile.details.avatar[0] : "https://api.lorem.space/image/face?hash=33791"}
+                  src={profile ? profile.details.avatar[0] : `https://avatars.dicebear.com/api/micah/${evmAddress}.svg`}
                   alt=""
                   className="w-[120px] h-auto"
                 />

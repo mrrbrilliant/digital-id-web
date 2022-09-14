@@ -12,6 +12,7 @@ import ProfileProvider from "../contexts/profile";
 import BalanceProvider from "../contexts/balance";
 import ContractProvider from "../contexts/contract";
 import DataProvider from "../contexts/data";
+import ContactProvider from "../contexts/contact";
 
 // Components
 import Layout from "../components/layout";
@@ -53,10 +54,12 @@ function MyApp({ Component, pageProps }) {
               <BalanceProvider>
                 <DataProvider>
                   <ProfileProvider>
-                    <Layout>
-                      <UnlockWallet />
-                      <Component {...pageProps} />
-                    </Layout>
+                    <ContactProvider>
+                      <Layout>
+                        <UnlockWallet />
+                        <Component {...pageProps} />
+                      </Layout>
+                    </ContactProvider>
                   </ProfileProvider>
                 </DataProvider>
               </BalanceProvider>

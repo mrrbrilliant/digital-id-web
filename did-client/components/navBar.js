@@ -17,7 +17,7 @@ const navigation = [
 const Navbar = ({ toggleQr }) => {
   const { theme, setTheme } = useTheme();
   const { profile } = useContext(ProfileContext);
-  const { forgetWallet, exportWallet } = useContext(WalletContext);
+  const { forgetWallet, exportWallet, evmAddress } = useContext(WalletContext);
   const router = useRouter();
 
   function classNames(...classes) {
@@ -105,7 +105,10 @@ const Navbar = ({ toggleQr }) => {
         <div className=" dropdown dropdown-end">
           <label tabIndex={0} className="btn btn-block btn-circle avatar border-none">
             <div className="h-full rounded-full">
-              <img src={profile ? profile.details.avatar[0] : "https://api.lorem.space/image/face?hash=33791"} alt="" />
+              <img
+                src={profile ? profile.details.avatar[0] : `https://avatars.dicebear.com/api/micah/${evmAddress}.svg`}
+                alt=""
+              />
             </div>
           </label>
           <ul

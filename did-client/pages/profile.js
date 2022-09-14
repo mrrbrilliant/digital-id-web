@@ -7,12 +7,53 @@ import { DataContext } from "../contexts/data";
 import { ContractContext } from "../contexts/contract";
 import Badge from "../components/badge";
 import { toast } from "react-toastify";
+import { QRCode } from "react-qrcode-logo";
+import { ContactContext } from "../contexts/contact";
 
 export default function UserProfile() {
-  const { organizations, schemas, credentials, isDataReady, fetchData } = useContext(DataContext);
+  const { addContact, contacts, removeContact } = useContext(ContactContext);
+  const { organizations, schemas } = useContext(DataContext);
+  const [isIncontact, setIsInContact] = useState();
   const [data, setData] = useState();
+  const [masterId, setMasterId] = useState();
   const router = useRouter();
   const { address } = router.query;
+
+  const checkContact = useCallback(() => {
+    const exist = contacts.filter((contact) => contact.owner == address);
+    if (exist.length === 0) {
+      setIsInContact(false);
+      return;
+    }
+    setIsInContact(true);
+  }, [contacts, address, setIsInContact]);
+
+  const initMasterID = useCallback(async () => {
+    try {
+      const _data = await axios.get(`/api/masterId?address=${address}`).then((res) => res.data);
+      console.log("_data", _data);
+      setMasterId(_data);
+    } catch (error) {
+      if (error) {
+        setMasterId({
+          did: -1,
+          cid: "",
+          owner: address,
+          ctype: 2,
+          state: 0,
+          parent: 1,
+          isVerified: true,
+          details: {
+            name: "Unknow",
+            full_name: "Unknow",
+            gender: "Unknow",
+            email: "Unknow",
+            avatar: [`https://avatars.dicebear.com/api/micah/${address}.svg`],
+          },
+        });
+      }
+    }
+  }, [setMasterId, address]);
 
   const init = useCallback(async () => {
     try {
@@ -22,26 +63,90 @@ export default function UserProfile() {
   }, [setData, address]);
 
   useEffect(() => {
+    if (address && typeof masterId === "undefined") {
+      initMasterID();
+    }
+  }, [address, masterId, initMasterID]);
+
+  useEffect(() => {
     if (address && typeof data === "undefined") {
       init();
     }
   }, [data, init, address]);
 
+  useEffect(() => {
+    if (contacts && address && typeof isIncontact === "undefined") {
+      checkContact();
+    }
+  }, [contacts, address, isIncontact, checkContact]);
+
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-6 gap-6 ">
-      {/* <pre>{JSON.stringify(data, null, 4)}</pre> */}
-      {data &&
-        data["credentials"].length > 0 &&
-        data["credentials"].map((credential) => {
-          return (
-            <DocumentCard
-              key={credential.did}
-              credential={credential}
-              schemas={schemas}
-              organizations={organizations}
-            />
-          );
-        })}
+    <div>
+      <div className="w-full flex rounded-xl bg-gradient-to-r from-green-400 to-blue-500 text-gray-800">
+        <div className="w-64">
+          <div className="w-full h-full flex flex-col place-content-center place-items-center gap-4">
+            <div className="avatar">
+              <div className="w-28 bg-base-100 rounded-full ring ring-primary ring-offset-base-100 bg-opacity-50 backdrop-blur ring-offset-2">
+                <img
+                  src={masterId ? masterId.details.avatar[0] : `https://avatars.dicebear.com/api/micah/${address}.svg`}
+                  alt=""
+                  className="w-[120px] h-auto"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="stat flex-grow p-6 overflow-x-hidden place-content-center gap-2">
+          <div>
+            <div className="flex mb-4 text-3xl font-bold">{masterId && masterId?.details.full_name}</div>
+            <p className="text-xs font-normal font-mono">EVM: {address}</p>
+          </div>
+          {masterId && masterId.details.full_name !== "Unknow" && !isIncontact && (
+            <button
+              className="w-max btn bg-opacity-50 backdrop-blur-sm border-none"
+              onClick={() => {
+                addContact(masterId);
+                setIsInContact(true);
+              }}
+            >
+              Add Contact
+            </button>
+          )}
+
+          {masterId && masterId.details.full_name !== "Unknow" && isIncontact && (
+            <button
+              className="w-max btn bg-opacity-50 backdrop-blur-sm border-none"
+              onClick={() => {
+                removeContact(masterId.did);
+                setIsInContact(false);
+              }}
+            >
+              Remove Contact
+            </button>
+          )}
+        </div>
+
+        <div className="p-4">
+          <div className="rounded-xl overflow-hidden">
+            <QRCode value={address} eyeRadius={5} size={120} />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-6 gap-6 ">
+        {data &&
+          data["credentials"].length > 0 &&
+          data["credentials"].map((credential) => {
+            return (
+              <DocumentCard
+                key={credential.did}
+                credential={credential}
+                schemas={schemas}
+                organizations={organizations}
+              />
+            );
+          })}
+      </div>
     </div>
   );
 }

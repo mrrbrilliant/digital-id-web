@@ -53,13 +53,14 @@ export default async function handler(req, res) {
     });
 
     const masterId = data["credentials"].filter((credential) => credential.parent === 1);
+    console.log(masterId);
 
     if (masterId.length === 0) {
-      return res.status(500).json({ error: "User doesn't own a master id." });
+      throw new Error("User doesn't own a master id.");
     }
 
     res.status(200).json(masterId[0]);
   } catch (error) {
-    res.json(error);
+    res.status(404).json(error);
   }
 }
