@@ -343,12 +343,11 @@ export default function MintCredential() {
           toast.dismiss(progress);
           toast.dismiss(success);
           toast.dismiss(failed);
+          await fetchData();
+          router.push(`/organizations/${orgId}/schemas/${schemaId}`);
         }
-      }, row * 5000);
+      }, row * 10000);
     }
-
-    await fetchData();
-    router.push(`/organizations/${orgId}/schemas/${schemaId}`);
   }
 
   useEffect(() => {
