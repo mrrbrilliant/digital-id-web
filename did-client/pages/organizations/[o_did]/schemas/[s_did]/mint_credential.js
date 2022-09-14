@@ -214,7 +214,7 @@ export default function MintCredential() {
   }
 
   function parseCSV(_csvContent) {
-    const lines = Papa.parse(_csvContent);
+    const lines = Papa.parse(_csvContent.trim());
     return lines;
   }
 
