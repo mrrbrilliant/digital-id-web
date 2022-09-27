@@ -16,18 +16,10 @@ export default function MintCredential() {
   const { evmWallet, evmAddress, evmPrivateKey, toggleRequest, show } = useContext(WalletContext);
   const { contract } = useContext(ContractContext);
 
-  const [isChecking, setIsChecking] = React.useState(true);
-  const [org, setOrg] = useState();
-  const [isSearching, setIsSearching] = useState(true);
-  const [initiated, setInitiated] = useState(false);
-  const [form, setForm] = useState();
-  const [formUi, setFormUi] = useState(null);
   const [formData, setFormData] = useState(null);
-  // const [schema, setSchema] = useState({});
   const [validationErrors, setValidationErrors] = useState([]);
   const [isOwner, setIsOwner] = useState();
-  const [orgOwner, setOrgOwner] = useState("");
-
+  const [tableHeaders, setTableHeaders] = useState([]);
   const [attachments, setAttachments] = useState();
   const [csvContent, setCsvContent] = useState("");
   const [bulkData, setBulkData] = useState([]);
@@ -369,6 +361,8 @@ export default function MintCredential() {
       const [headers, ...body] = result.data;
       const data = [];
 
+      setTableHeaders(headers);
+
       for (let row = 0; row < body.length; row++) {
         const obj = {};
         for (let col = 0; col < body[row].length; col++) {
@@ -462,12 +456,33 @@ export default function MintCredential() {
           );
         })}
 
-      {bulkData.length > 0 &&
-        bulkData.map((row, index) => (
-          <div key={index}>
-            <pre>{JSON.stringify(row)}</pre>
-          </div>
-        ))}
+      <div className="overflow-x-auto">
+        <table className="table table-compact w-full font-mono text-xs">
+          <thead>
+            <tr>
+              <th></th>
+              {tableHeaders.map((h) => (
+                <th key={h} className="normal-case text-xs px-0">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {bulkData.length > 0 &&
+              bulkData.map((row, index) => (
+                <tr key={index}>
+                  <td className="text-xs">{index + 1}</td>
+                  {Object.entries(row).map((k) => (
+                    <td key={k[1]} className="text-xs p-0">
+                      <input type="text" className="w-[98%] h-full py-1" value={k[1]} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
 
       {bulkData.length > 0 && (
         <div className="w-full flex justify-end space-x-4 mt-8">

@@ -8,6 +8,7 @@ const Contract = async function (privateKey = "") {
   const kmd = Kumandra();
   const provider = EvmRpcProvider.from(config.providerAddress);
   await provider.isReady();
+
   let contract = new ethers.Contract(config.contractAddress, config.abi, provider);
 
   if (privateKey !== "") {
@@ -52,7 +53,7 @@ const Contract = async function (privateKey = "") {
             return "credentials";
         }
       });
-      console.log(data);
+
       return data;
     } catch (error) {
       return error;
